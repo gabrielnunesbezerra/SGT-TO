@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>SGT-O Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <main class="container">
+        
+        <section class="login-section">
+            <img src="/assets/logo.png" alt="SGT-O Logo" class="logo" onerror="this.src='https://via.placeholder.com/150x80?text=SGT-O'">
+            <h1 id="titulo">Bem-vindo Profissional</h1>
+            
+            <form id="form-login">
+             
+                <div id="grupo-profissional">
+                    <label>Usuário</label>
+                    <input type="text" id="input-usuario" placeholder="Digite seu usuário">
+                </div>
+
+               
+                <div id="grupo-responsavel" class="oculto">
+                    <label>CPF do Responsável</label>
+                    <input type="text" id="input-cpf" placeholder="000.000.000-00" maxlength="14">
+                </div>
+
+                <!-- Senha -->
+                <div>
+                    <label>Senha</label>
+                    <input type="password" id="input-senha" placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn-principal">Entrar</button>
+                <button type="button" id="btn-trocar" class="btn-secundario">Logar como Responsável</button>
+            </form>
+        </section>
+
+        <section class="visual-section">
+            <div class="forma-decorativa forma-1"></div>
+            <div class="forma-decorativa forma-2"></div>
+            <div class="forma-decorativa forma-3"></div>
+        </section>
+    </main>
+    <script src="/js/main.js"></script>
+</body>
+</html>
