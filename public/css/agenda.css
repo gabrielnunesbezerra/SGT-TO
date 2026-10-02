@@ -1,0 +1,53 @@
+.agenda-layout { display: grid; grid-template-columns: minmax(0, 1fr) 286px; gap: 18px; align-items: start; }
+.calendar-panel { min-width: 0; overflow: hidden; }
+.calendar-toolbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--line); }
+.week-actions { display: flex; align-items: center; gap: 8px; }
+.week-actions h2 { margin: 0 0 0 7px; font-size: 14px; }
+.week-hours { color: var(--muted); font-size: 11px; }
+.week-board { display: grid; grid-template-columns: 55px repeat(5, minmax(110px, 1fr)); overflow: auto; }
+.time-column, .day-column { min-width: 0; }
+.day-heading { height: 58px; display: grid; align-content: center; justify-items: center; gap: 3px; border-bottom: 1px solid var(--line); border-left: 1px solid #edf1ee; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.day-heading strong { color: var(--ink); font: 700 15px Manrope, sans-serif; letter-spacing: 0; text-transform: none; }
+.day-heading.today strong { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: #fff; background: var(--primary); }
+.time-heading { height: 58px; border-bottom: 1px solid var(--line); }
+.time-labels, .appointment-lane { position: relative; height: 700px; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 69px, #edf1ee 69px, #edf1ee 70px); }
+.time-labels span { position: absolute; right: 9px; transform: translateY(-50%); color: #89958f; font-size: 10px; }
+.appointment-lane { border-left: 1px solid #edf1ee; }
+.appointment-card { position: absolute; left: 5px; right: 5px; min-height: 48px; overflow: hidden; padding: 7px 8px; border-left: 3px solid #5b21b6; border-radius: 5px; background: #f3e8ff; color: #4c1d95; font-size: 10px; line-height: 1.45; }
+.appointment-card.status-confirmado { border-color: #5686bd; background: #eaf2fa; color: #355c83; }
+.appointment-card.status-realizado { border-color: #7c3aed; background: #f1eafd; color: #5b21b6; }
+.appointment-card.status-cancelado { border-color: #bd6a64; background: #fceeed; color: #8a4e4a; text-decoration: line-through; }
+.appointment-card strong, .appointment-card span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.appointment-card strong { font-size: 10px; }
+.appointment-card span { opacity: .8; }
+.agenda-sidebar { display: grid; gap: 14px; }
+.mini-calendar { padding: 17px; }
+.mini-heading { display: flex; justify-content: space-between; align-items: center; }
+.mini-heading h2 { margin: 0; font-size: 14px; }
+.mini-heading > div { display: flex; gap: 5px; }
+.mini-heading .icon-button { width: 28px; height: 28px; }
+.mini-month-label { margin: 13px 0 10px; color: #52635e; font-size: 11px; font-weight: 700; text-align: center; }
+.mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.mini-grid > span, .mini-grid > button { display: grid; place-items: center; min-width: 0; height: 29px; border: 0; border-radius: 50%; background: transparent; color: #53635e; font-size: 10px; }
+.mini-grid > span { color: #98a39f; font-weight: 700; }
+.mini-grid > button:hover { background: #eef4f0; }
+.mini-grid > button.outside { color: #b7c0bc; }
+.mini-grid > button.selected { color: white; background: var(--primary); }
+.whatsapp-card { display: flex; align-items: center; gap: 11px; padding: 15px; border-radius: 12px; background: #f3e8ff; color: #4c1d95; }
+.whatsapp-icon { flex: 0 0 33px; height: 33px; display: grid; place-items: center; border-radius: 50%; color: white; background: #5b21b6; }
+.whatsapp-card strong, .whatsapp-card small { display: block; }
+.whatsapp-card strong { font-size: 11px; }
+.whatsapp-card small { margin-top: 4px; color: #806c9c; font-size: 9px; }
+.whatsapp-card b { margin-left: auto; }
+.waiting-card { padding: 18px; }
+.waiting-heading { display: flex; justify-content: space-between; align-items: center; }
+.waiting-heading h2 { margin: 4px 0 0; font-size: 14px; }
+.waiting-count { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 700; }
+.waiting-description { margin: 12px 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.waiting-person { padding: 10px 0; border-top: 1px solid #edf1ee; font-size: 11px; font-weight: 700; }
+.waiting-person span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; font-weight: 400; }
+.end-time { padding: 10px 12px; border-radius: 8px; color: #667771; background: #f3f8f5; font-size: 11px; }
+.end-time strong { margin-left: 7px; color: var(--primary); font-size: 15px; }
+.end-time small { display: block; margin-top: 4px; color: #91a099; font-size: 10px; }
+@media (max-width: 1000px) { .agenda-layout { grid-template-columns: 1fr; } .agenda-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .waiting-card { grid-column: 1 / -1; } }
+@media (max-width: 650px) { .calendar-toolbar { align-items: flex-start; flex-direction: column; } .week-actions h2 { font-size: 12px; } .week-board { grid-template-columns: 42px repeat(5, 112px); } .agenda-sidebar { grid-template-columns: 1fr; } .waiting-card { grid-column: auto; } }
