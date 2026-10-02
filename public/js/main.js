@@ -3,33 +3,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const titulo = document.getElementById('titulo');
     const grupoProfissional = document.getElementById('grupo-profissional');
     const grupoResponsavel = document.getElementById('grupo-responsavel');
+    const inputUsuario = document.getElementById('input-usuario');
     const inputCpf = document.getElementById('input-cpf');
-    
+    const inputSenha = document.getElementById('input-senha');
+    const form = document.getElementById('form-login');
+    const message = document.getElementById('login-message');
     let modo = 'profissional';
 
     btnTrocar.addEventListener('click', (e) => {
         e.preventDefault();
+        message.classList.add('oculto');
         if (modo === 'profissional') {
             modo = 'responsavel';
             grupoProfissional.classList.add('oculto');
             grupoResponsavel.classList.remove('oculto');
+            inputUsuario.required = false;
+            inputUsuario.disabled = true;
+            inputCpf.required = true;
+            inputCpf.disabled = false;
             titulo.textContent = 'Bem-vindo Responsável';
             btnTrocar.textContent = 'Logar como Profissional';
         } else {
             modo = 'profissional';
             grupoResponsavel.classList.add('oculto');
             grupoProfissional.classList.remove('oculto');
+            inputCpf.required = false;
+            inputCpf.disabled = true;
+            inputUsuario.required = true;
+            inputUsuario.disabled = false;
             titulo.textContent = 'Bem-vindo Profissional';
             btnTrocar.textContent = 'Logar como Responsável';
         }
     });
 
-    inputCpf.addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g, '');
-        if (v.length > 3) v = v.replace(/^(\d{3})(\d)/, '$1.$2');
-        if (v.length > 6) v = v.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-        if (v.length > 9) v = v.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
-        e.target.value = v;
-    });
+    [inputUsuario, inputCpf].forEach((input) => input.addEventListener('input', (event) => {
+        let value = event.target.value.replace(/\D/g, '').slice(0, 11);
+        if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2})$/, '$1.$2.$3-$4');
+        else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, '$1.$2.$3');
+        else if (value.length > 3) value = value.replace(/^(\d{3})(\d{1,3})$/, '$1.$2');
+        event.target.value = value;
+    }));
 
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = form.querySelector('[type="submit"]');
+        const identificador = modo === 'profissional' ? inputUsuario.value : inputCpf.value;
+        button.disabled = true;
+        message.classList.add('oculto');
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tipo: modo === 'profissional' ? 'terapeuta' : 'paciente',
+                    login: identificador,
+                    senha: inputSenha.value
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.erro || 'Não foi possível entrar.');
+            sessionStorage.setItem('sgt-usuario', JSON.stringify(result.usuario));
+            window.location.href = '/painel.html';
+        } catch (error) {
+            message.textContent = error.message;
+            message.classList.remove('oculto');
+        } finally {
+            button.disabled = false;
+        }
+    });
 });
