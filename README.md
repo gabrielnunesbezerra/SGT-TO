@@ -4,14 +4,14 @@ Aplicação web com Express, telas modulares em HTML/CSS/JavaScript e persistên
 
 ## Executar localmente
 
-Requer Node.js 18 ou superior.
+Requer Node.js 20 ou superior.
 
 ```sh
 npm install
 npm start
 ```
 
-Abra `http://localhost:3000`. Na primeira execução o banco SQLite é criado em `src/database/sgt-to.sqlite` e recebe dados demonstrativos. Os usuários demonstrativos usam a senha `123456`; terapeutas de exemplo: CPF `11111111111` e `22222222222`. Pacientes de exemplo: CPF de `00000000001` a `00000000005`.
+Abra `http://localhost:3001`. Na primeira execução o banco SQLite é criado em `src/database/sgt-to.sqlite` e recebe dados demonstrativos. Os usuários demonstrativos usam a senha `123456`; terapeutas de exemplo: CPF `11111111111` e `22222222222`. Pacientes de exemplo: CPF de `00000000001` a `00000000005`.
 
 Para escolher outro local para o SQLite, defina `DB_PATH`. O banco padrão é local e não deve ser publicado.
 
