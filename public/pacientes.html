@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pacientes | SGT-O</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/pacientes.css">
+    <script defer src="/js/navbar.js"></script>
+    <script defer src="/js/pacientes.js"></script>
+</head>
+<body>
+    <div data-site-nav></div>
+    <main class="page">
+        <section class="page-heading">
+            <div><span class="eyebrow">Cadastro e acompanhamento</span><h1>Pacientes</h1><p>Mantenha os dados dos pacientes sempre organizados e atualizados.</p></div>
+            <span id="patient-count" class="count-pill">Carregando...</span>
+        </section>
+        <div id="patients-message" class="notice hidden" role="status"></div>
+        <section class="patient-layout">
+            <article class="surface patient-form-card">
+                <div class="form-title"><span class="form-icon">＋</span><div><span class="eyebrow">Novo cadastro</span><h2>Cadastrar paciente</h2></div></div>
+                <form id="patient-form">
+                    <div class="form-grid">
+                        <label class="field full">Nome completo<input name="nome" type="text" maxlength="160" placeholder="Ex.: Maria da Silva" required></label>
+                        <label class="field">CPF<input name="cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required></label>
+                        <label class="field">Telefone<input name="telefone" type="tel" maxlength="30" placeholder="(11) 99999-9999" required></label>
+                        <label class="field full">Nome do responsável<input name="nome_responsavel" type="text" maxlength="160" placeholder="Nome do responsável (se houver)"></label>
+                        <label class="field full">Senha de acesso do paciente (opcional)<input name="senha" type="password" minlength="6" autocomplete="new-password" placeholder="Necessária para o paciente acessar o sistema"></label>
+                    </div>
+                    <button class="button submit-patient" type="submit">Cadastrar paciente</button>
+                </form>
+            </article>
+            <article class="surface patient-list-card">
+                <div class="patient-list-heading"><div><span class="eyebrow">Base de pacientes</span><h2>Pacientes cadastrados</h2></div><label class="search-field"><span aria-hidden="true">⌕</span><input type="search" id="patient-search" placeholder="Buscar paciente..." aria-label="Buscar paciente"></label></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Paciente</th><th>CPF</th><th>Telefone</th><th>Responsável</th><th>Ações</th></tr></thead>
+                        <tbody id="patients-body"><tr><td colspan="5" class="loading-state">Carregando pacientes...</td></tr></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+    <div class="modal-backdrop hidden" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+        <section class="modal">
+            <div class="modal-header"><div><span class="eyebrow">Cadastro</span><h2 id="edit-title">Editar paciente</h2><p>Atualize os dados do paciente.</p></div><button class="icon-button" type="button" id="close-edit" aria-label="Fechar">×</button></div>
+            <div id="edit-error" class="notice error hidden" role="alert"></div>
+            <form id="edit-form">
+                <div class="form-grid">
+                    <label class="field full">Nome completo<input name="nome" maxlength="160" required></label>
+                    <label class="field">CPF<input name="cpf" inputmode="numeric" maxlength="14" required></label>
+                    <label class="field">Telefone<input name="telefone" maxlength="30" required></label>
+                    <label class="field full">Nome do responsável<input name="nome_responsavel" maxlength="160"></label>
+                </div>
+                <div class="modal-actions"><button class="button secondary" type="button" id="cancel-edit">Cancelar</button><button class="button" type="submit">Salvar alterações</button></div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
