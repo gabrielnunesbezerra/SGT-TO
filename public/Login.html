@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar | SGT-O</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <main class="container">
+        <section class="login-section">
+            <span class="logo" aria-label="SGT-O">SG</span>
+            <h1 id="titulo">Bem-vindo Profissional</h1>
+            <form id="form-login">
+                <div id="grupo-profissional">
+                    <label for="input-usuario">CPF do profissional</label>
+                    <input type="text" id="input-usuario" inputmode="numeric" autocomplete="username" placeholder="000.000.000-00" maxlength="14" required>
+                </div>
+                <div id="grupo-responsavel" class="oculto">
+                    <label for="input-cpf">CPF do paciente</label>
+                    <input type="text" id="input-cpf" inputmode="numeric" autocomplete="username" placeholder="000.000.000-00" maxlength="14" disabled>
+                </div>
+                <div>
+                    <label for="input-senha">Senha</label>
+                    <input type="password" id="input-senha" autocomplete="current-password" placeholder="Digite sua senha" required>
+                </div>
+                <div id="login-message" class="login-message oculto" role="alert"></div>
+                <button type="submit" class="btn-principal">Entrar</button>
+                <button type="button" id="btn-trocar" class="btn-secundario">Logar como Responsável</button>
+            </form>
+        </section>
+        <section class="visual-section">
+            <div class="forma-decorativa forma-1"></div>
+            <div class="forma-decorativa forma-2"></div>
+            <div class="forma-decorativa forma-3"></div>
+        </section>
+    </main>
+    <script src="/js/main.js"></script>
+</body>
+</html>
