@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agenda | SGT-O</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/agenda.css">
+    <script defer src="/js/navbar.js"></script>
+    <script defer src="/js/agenda.js"></script>
+</head>
+<body>
+    <div data-site-nav></div>
+    <main class="page">
+        <section class="page-heading">
+            <div><span class="eyebrow">Planejamento semanal</span><h1>Agenda de atendimentos</h1><p>Uma semana organizada para um cuidado que faz a diferença.</p></div>
+            <button class="button" id="novo-agendamento" type="button">＋ Novo agendamento</button>
+        </section>
+        <div id="agenda-message" class="notice hidden" role="status"></div>
+        <div class="agenda-layout">
+            <section class="calendar-panel surface">
+                <div class="calendar-toolbar">
+                    <div class="week-actions"><button class="icon-button" id="semana-anterior" aria-label="Semana anterior">‹</button><button class="icon-button" id="semana-proxima" aria-label="Próxima semana">›</button><button class="button secondary small" id="semana-atual">Hoje</button><h2 id="week-title"></h2></div>
+                    <span class="week-hours">Atendimentos · 08h–18h</span>
+                </div>
+                <div class="week-board" id="week-board"></div>
+            </section>
+            <aside class="agenda-sidebar">
+                <section class="mini-calendar surface">
+                    <div class="mini-heading"><h2>Calendário</h2><div><button class="icon-button" id="mes-anterior" aria-label="Mês anterior">‹</button><button class="icon-button" id="mes-proximo" aria-label="Próximo mês">›</button></div></div>
+                    <div id="mini-month-label" class="mini-month-label"></div>
+                    <div class="mini-grid" id="mini-grid"></div>
+                </section>
+                <a class="whatsapp-card" href="https://wa.me/" target="_blank" rel="noopener noreferrer"><span class="whatsapp-icon">↗</span><span><strong>Fale pelo WhatsApp</strong><small>Entre em contato com seus pacientes</small></span><b>→</b></a>
+                <section class="waiting-card surface"><div class="waiting-heading"><div><span class="eyebrow">Disponibilidade</span><h2>Lista de espera</h2></div><span class="waiting-count" id="waiting-count">0</span></div><p class="waiting-description">Pacientes sem consultas futuras cadastradas.</p><div id="waiting-list"><div class="loading-state">Carregando...</div></div></section>
+            </aside>
+        </div>
+    </main>
+    <div class="modal-backdrop hidden" id="appointment-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <section class="modal">
+            <div class="modal-header"><div><span class="eyebrow">Novo horário</span><h2 id="modal-title">Agendar atendimento</h2><p>Escolha o paciente, a equipe e o melhor horário.</p></div><button class="icon-button" type="button" id="fechar-modal" aria-label="Fechar">×</button></div>
+            <div id="modal-error" class="notice error hidden" role="alert"></div>
+            <form id="appointment-form">
+                <div class="form-grid">
+                    <label class="field full">Paciente<select id="appointment-patient" required><option value="">Selecione um paciente</option></select></label>
+                    <label class="field full">Terapeuta<select id="appointment-therapist" required><option value="">Selecione um terapeuta</option></select></label>
+                    <label class="field">Dia da semana<select id="appointment-day" required><option value="0">Segunda-feira</option><option value="1">Terça-feira</option><option value="2">Quarta-feira</option><option value="3">Quinta-feira</option><option value="4">Sexta-feira</option></select></label>
+                    <label class="field">Início<input id="appointment-time" type="time" value="09:00" required></label>
+                    <div class="end-time full">Término previsto <strong id="appointment-end">09:50</strong><small>Atendimento com duração de 50 minutos</small></div>
+                </div>
+                <div class="modal-actions"><button class="button secondary" type="button" id="cancelar-modal">Cancelar</button><button class="button" type="submit">Salvar agendamento</button></div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
