@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consultas | SGT-O</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/consultas.css">
+    <script defer src="/js/navbar.js"></script>
+    <script defer src="/js/consultas.js"></script>
+</head>
+<body>
+    <div data-site-nav></div>
+    <main class="page">
+        <section class="page-heading">
+            <div><span class="eyebrow">Atendimentos</span><h1>Consultas</h1><p>Acompanhe e atualize o andamento de cada atendimento.</p></div>
+            <a class="button" href="/agenda.html">＋ Novo agendamento</a>
+        </section>
+        <div id="consultas-message" class="notice hidden" role="status"></div>
+        <section class="surface consultations-panel">
+            <div class="consultations-toolbar">
+                <div><h2>Todos os agendamentos</h2><span id="consultas-count" class="result-count"></span></div>
+                <div class="filters">
+                    <label class="search-field"><span aria-hidden="true">⌕</span><input id="consulta-search" type="search" placeholder="Buscar paciente ou terapeuta" aria-label="Buscar paciente ou terapeuta"></label>
+                    <select id="status-filter" class="toolbar-control" aria-label="Filtrar por status"><option value="">Todos os status</option><option>Agendado</option><option>Confirmado</option><option>Realizado</option><option>Cancelado</option></select>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Paciente</th><th>Terapeuta</th><th>Data</th><th>Horário</th><th>Status</th><th class="sr-only">Ação</th></tr></thead>
+                    <tbody id="consultas-body"><tr><td colspan="6" class="loading-state">Carregando consultas...</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
