@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel | SGT-O</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/painel.css">
+    <script defer src="/js/navbar.js"></script>
+    <script defer src="/js/painel.js"></script>
+</head>
+<body>
+    <div data-site-nav></div>
+    <main class="page">
+        <section class="page-heading">
+            <div><span class="eyebrow">Visão geral</span><h1>Bom dia, profissional</h1><p>Acompanhe a rotina da clínica em um só lugar.</p></div>
+            <a class="button" href="/agenda.html">＋ Novo agendamento</a>
+        </section>
+        <div id="dashboard-message" class="notice hidden" role="status"></div>
+        <section class="metrics" aria-label="Indicadores">
+            <article class="metric-card surface"><div class="metric-icon primary">♧</div><span class="metric-label">Pacientes cadastrados</span><strong id="total-pacientes">—</strong><span class="metric-note">Cadastros ativos</span></article>
+            <article class="metric-card surface"><div class="metric-icon peach">▦</div><span class="metric-label">Consultas de hoje</span><strong id="consultas-hoje">—</strong><span class="metric-note">Na agenda do dia</span></article>
+            <article class="metric-card surface"><div class="metric-icon blue">◷</div><span class="metric-label">Próximo atendimento</span><strong id="proximo-horario">—</strong><span id="proximo-paciente" class="metric-note">Sem atendimentos próximos</span></article>
+        </section>
+        <section class="dashboard-lower">
+            <article class="surface today-card">
+                <div class="section-title"><div><span class="eyebrow">Sua rotina</span><h2>Agenda de hoje</h2></div><a href="/consultas.html" class="text-link">Ver todas →</a></div>
+                <div id="agenda-hoje" class="today-list"><div class="loading-state">Carregando atendimentos...</div></div>
+            </article>
+            <aside class="welcome-card"><span class="welcome-orb">✳</span><span class="eyebrow">SGT-O</span><h2>Cuidado organizado, atendimento mais humano.</h2><p>Gerencie sua agenda, acompanhe a evolução dos pacientes e mantenha tudo em harmonia.</p><a href="/pacientes.html">Acessar pacientes <span>→</span></a></aside>
+        </section>
+    </main>
+</body>
+</html>
