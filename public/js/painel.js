@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     })();
     if (currentUser && heading) {
-        heading.textContent = `Bom dia, ${currentUser.nome.split(' ')[0]}`;
+        const hora = new Date().getHours();
+        const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+        heading.textContent = `${saudacao}, ${currentUser.nome.split(' ')[0]}`;
     }
     const showError = (error) => {
         message.textContent = error.message;
@@ -21,15 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             SGT.api(`/api/agendamentos${currentUser && currentUser.tipo === 'terapeuta' ? `?id_terapeuta=${currentUser.id}` : ''}`)
         ]);
         const hoje = SGT.localDate(new Date());
-        const agendaFiltrada = currentUser && currentUser.tipo === 'terapeuta'
-            ? agendamentos.filter((item) => Number(item.id_terapeuta) === Number(currentUser.id))
-            : agendamentos;
-        const deHoje = agendaFiltrada.filter((item) => String(item.data_agendamento).slice(0, 10) === hoje)
+        const deHoje = agendamentos.filter((item) => String(item.data_agendamento).slice(0, 10) === hoje)
             .sort((a, b) => String(a.hora_agendamento).localeCompare(String(b.hora_agendamento)));
         document.getElementById('total-pacientes').textContent = pacientes.length;
         document.getElementById('consultas-hoje').textContent = deHoje.length;
         const agora = new Date().toTimeString().slice(0, 5);
-        const proximos = agendaFiltrada.filter((item) => {
+        const proximos = agendamentos.filter((item) => {
             const date = String(item.data_agendamento).slice(0, 10);
             return item.status !== 'Cancelado' && (date > hoje || (date === hoje && String(item.hora_agendamento).slice(0, 5) >= agora));
         }).sort((a, b) => `${a.data_agendamento}`.localeCompare(`${b.data_agendamento}`) || String(a.hora_agendamento).localeCompare(String(b.hora_agendamento)));
