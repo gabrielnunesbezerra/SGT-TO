@@ -36,11 +36,6 @@
         const date = new Date(`${String(value).slice(0, 10)}T12:00:00`);
         return new Intl.DateTimeFormat('pt-BR', options).format(date);
     };
-    window.SGT = { api, escapeHtml, localDate, dateLabel, sair };
-
-    const outlet = document.querySelector('[data-site-nav]');
-    if (!outlet) return;
-    const current = location.pathname.toLowerCase();
     const usuario = (() => {
         try {
             return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
@@ -48,6 +43,11 @@
             return null;
         }
     })();
+    window.SGT = { api, escapeHtml, localDate, dateLabel, sair, usuario };
+
+    const outlet = document.querySelector('[data-site-nav]');
+    if (!outlet) return;
+    const current = location.pathname.toLowerCase();
     if (!usuario || !sessionStorage.getItem('sgt-token')) {
         sair();
         return;

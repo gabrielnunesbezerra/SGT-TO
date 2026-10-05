@@ -19,8 +19,6 @@ app.use('/api/agendamentos', exigirLogin, require('./src/routes/agendamentos'));
 app.use('/api/prontuarios', exigirLogin, exigirTerapeuta, require('./src/routes/prontuarios'));
 app.use('/api/mensagens', exigirLogin, require('./src/routes/mensagens'));
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
 app.use((req, res) => {
     res.status(404).json({ erro: 'Recurso não encontrado.' });
 });

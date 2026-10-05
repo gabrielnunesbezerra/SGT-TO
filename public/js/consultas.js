@@ -4,13 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const search = document.getElementById('consulta-search');
     const filter = document.getElementById('status-filter');
     let appointments = [];
-    const ehPaciente = (() => {
-        try {
-            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null')?.tipo === 'paciente';
-        } catch (error) {
-            return false;
-        }
-    })();
+    const currentUser = SGT.usuario;
+    const ehPaciente = currentUser?.tipo === 'paciente';
     if (ehPaciente) {
         document.querySelector('.page-heading .button')?.remove();
         document.querySelector('.page-heading h1').textContent = 'Minhas consultas';
@@ -44,13 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             </tr>`).join('');
     }
-    const currentUser = (() => {
-        try {
-            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
-        } catch (error) {
-            return null;
-        }
-    })();
+
     async function load() {
         try {
             const query = currentUser && currentUser.tipo === 'terapeuta'

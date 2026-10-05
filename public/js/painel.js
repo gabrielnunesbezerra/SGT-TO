@@ -1,13 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const message = document.getElementById('dashboard-message');
     const heading = document.querySelector('.page-heading h1');
-    const currentUser = (() => {
-        try {
-            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
-        } catch (error) {
-            return null;
-        }
-    })();
+    const currentUser = SGT.usuario;
     if (currentUser && heading) {
         const hora = new Date().getHours();
         const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';

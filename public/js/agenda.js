@@ -103,13 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? waiting.slice(0, 5).map((patient) => `<div class="waiting-person">${SGT.escapeHtml(patient.nome)}<span>${SGT.escapeHtml(patient.telefone || 'Sem telefone cadastrado')}</span></div>`).join('')
             : '<div class="empty-state">Todos os pacientes têm horário futuro.</div>';
     }
-    const currentUser = (() => {
-        try {
-            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
-        } catch (error) {
-            return null;
-        }
-    })();
+    const currentUser = SGT.usuario;
     async function loadWeek() {
         try {
             const inicio = SGT.localDate(state.weekStart);

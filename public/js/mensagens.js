@@ -6,13 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('chat-input');
     const submit = form.querySelector('[type="submit"]');
     const message = document.getElementById('messages-message');
-    const usuario = (() => {
-        try {
-            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
-        } catch (error) {
-            return null;
-        }
-    })();
+    const usuario = SGT.usuario;
     const ehPaciente = usuario?.tipo === 'paciente';
     let contacts = [];
     let selectedId = null;
