@@ -4,6 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const search = document.getElementById('consulta-search');
     const filter = document.getElementById('status-filter');
     let appointments = [];
+    const ehPaciente = (() => {
+        try {
+            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null')?.tipo === 'paciente';
+        } catch (error) {
+            return false;
+        }
+    })();
+    if (ehPaciente) {
+        document.querySelector('.page-heading .button')?.remove();
+        document.querySelector('.page-heading h1').textContent = 'Minhas consultas';
+        document.querySelector('.page-heading p').textContent = 'Acompanhe as datas e o andamento dos seus atendimentos.';
+        document.querySelector('.consultations-toolbar h2').textContent = 'Seus agendamentos';
+    }
 
     function render() {
         const query = search.value.trim().toLocaleLowerCase('pt-BR');
@@ -24,10 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${SGT.escapeHtml(SGT.dateLabel(item.data_agendamento, { day: '2-digit', month: 'long', year: 'numeric' }))}</td>
                 <td>${SGT.escapeHtml(String(item.hora_agendamento).slice(0, 5))}</td>
                 <td><span class="badge ${SGT.escapeHtml(item.status.toLowerCase())}">${SGT.escapeHtml(item.status)}</span></td>
-                <td><label class="sr-only" for="status-${item.id_agendamento}">Alterar status da consulta de ${SGT.escapeHtml(item.nome_paciente)}</label>
+                <td>${ehPaciente ? '' : `<label class="sr-only" for="status-${item.id_agendamento}">Alterar status da consulta de ${SGT.escapeHtml(item.nome_paciente)}</label>
                     <select class="status-select" id="status-${item.id_agendamento}" data-status-id="${item.id_agendamento}" aria-label="Alterar status">
                         ${['Agendado', 'Confirmado', 'Realizado', 'Cancelado'].map((value) => `<option ${value === item.status ? 'selected' : ''}>${value}</option>`).join('')}
-                    </select>
+                    </select>`}
                 </td>
             </tr>`).join('');
     }

@@ -1,10 +1,11 @@
 const express = require('express');
 const db = require('../database/db');
+const { exigirTerapeuta } = require('../middleware/auth');
 
 const router = express.Router();
 const statusValidos = ['Agendado', 'Confirmado', 'Realizado', 'Cancelado'];
 
-router.get('/terapeutas', async (req, res) => {
+router.get('/terapeutas', exigirTerapeuta, async (req, res) => {
     const terapeutas = await db.all(
         `SELECT p.id_pessoa, p.nome, t.especialidade
          FROM TERAPEUTA t JOIN PESSOA p ON p.id_pessoa = t.id_pessoa
@@ -29,7 +30,10 @@ router.get('/', async (req, res) => {
         filtros.push('a.id_terapeuta = ?');
         params.push(Number(id_terapeuta));
     }
-    if (id_paciente) {
+    if (req.usuario.tipo === 'paciente') {
+        filtros.push('a.id_paciente = ?');
+        params.push(req.usuario.id);
+    } else if (id_paciente) {
         filtros.push('a.id_paciente = ?');
         params.push(Number(id_paciente));
     }
@@ -48,7 +52,7 @@ router.get('/', async (req, res) => {
     res.json(agendamentos);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', exigirTerapeuta, async (req, res) => {
     const data = typeof req.body.data_agendamento === 'string' ? req.body.data_agendamento : '';
     const hora = typeof req.body.hora_agendamento === 'string' ? req.body.hora_agendamento : '';
     const idPaciente = Number(req.body.id_paciente);
@@ -108,7 +112,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', exigirTerapeuta, async (req, res) => {
     const id = Number(req.params.id);
     const { status } = req.body;
     if (!Number.isSafeInteger(id) || id < 1 || !statusValidos.includes(status)) {

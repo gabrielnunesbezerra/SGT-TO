@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(result.erro || 'Não foi possível entrar.');
             sessionStorage.setItem('sgt-usuario', JSON.stringify(result.usuario));
             sessionStorage.setItem('sgt-token', result.token);
-            window.location.href = '/painel.html';
+            window.location.href = result.usuario.tipo === 'paciente' ? '/consultas.html' : '/painel.html';
         } catch (error) {
             message.textContent = error.message;
             message.classList.remove('oculto');

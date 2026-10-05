@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/pacientes', exigirLogin, exigirTerapeuta, require('./src/routes/pacientes'));
-app.use('/api/agendamentos', exigirLogin, exigirTerapeuta, require('./src/routes/agendamentos'));
+app.use('/api/agendamentos', exigirLogin, require('./src/routes/agendamentos'));
 app.use('/api/prontuarios', exigirLogin, exigirTerapeuta, require('./src/routes/prontuarios'));
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));

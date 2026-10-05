@@ -39,12 +39,6 @@
 
     const outlet = document.querySelector('[data-site-nav]');
     if (!outlet) return;
-    const links = [
-        ['/painel.html', 'Painel'],
-        ['/agenda.html', 'Agenda'],
-        ['/consultas.html', 'Consultas'],
-        ['/pacientes.html', 'Pacientes']
-    ];
     const current = location.pathname.toLowerCase();
     const usuario = (() => {
         try {
@@ -55,6 +49,20 @@
     })();
     if (!usuario || !sessionStorage.getItem('sgt-token')) {
         sair();
+        return;
+    }
+    const ehPaciente = usuario.tipo === 'paciente';
+    const inicio = ehPaciente ? '/consultas.html' : '/painel.html';
+    const links = ehPaciente
+        ? [['/consultas.html', 'Minhas consultas']]
+        : [
+            ['/painel.html', 'Painel'],
+            ['/agenda.html', 'Agenda'],
+            ['/consultas.html', 'Consultas'],
+            ['/pacientes.html', 'Pacientes']
+        ];
+    if (!links.some(([href]) => href === current)) {
+        window.location.replace(inicio);
         return;
     }
     const profileHtml = `
@@ -70,7 +78,7 @@
         </div>`;
     outlet.innerHTML = `
         <header class="topbar">
-            <a class="brand" href="/painel.html" aria-label="SGT-O, ir ao painel">
+            <a class="brand" href="${inicio}" aria-label="SGT-O, ir para o início">
                 <span class="brand-mark">SG</span>
                 <span><span class="brand-name">SGT-O</span><span class="brand-caption">Terapia ocupacional</span></span>
             </a>
