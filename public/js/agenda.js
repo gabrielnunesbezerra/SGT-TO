@@ -1,11 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const DAY_NAMES = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+    // Expediente do consultório (precisa bater com src/routes/agendamentos.js).
+    const HORA_ABERTURA = 8;
+    const HORA_FECHAMENTO = 18;
+    const DURACAO_MIN = 50;
+    const PX_POR_HORA = 70;
+    const ULTIMO_INICIO = minutesToTime(HORA_FECHAMENTO * 60 - DURACAO_MIN);
+    const ALTURA_CARD = Math.round((DURACAO_MIN / 60) * PX_POR_HORA);
     const state = { weekStart: mondayOf(new Date()), focusDate: new Date(), month: new Date(), patients: [], therapists: [], appointments: [] };
     const errorBox = document.getElementById('agenda-message');
     const modal = document.getElementById('appointment-modal');
     const modalError = document.getElementById('modal-error');
     const dateInput = document.getElementById('appointment-date');
 
+    function minutesToTime(total) {
+        return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+    }
     function mondayOf(date) {
         const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
@@ -37,15 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function updateEndTime() {
         const [hours, minutes] = document.getElementById('appointment-time').value.split(':').map(Number);
-        const end = (hours * 60 + minutes + 50) % (24 * 60);
-        document.getElementById('appointment-end').textContent = `${String(Math.floor(end / 60)).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}`;
+        if (Number.isNaN(hours)) return;
+        document.getElementById('appointment-end').textContent = minutesToTime((hours * 60 + minutes + DURACAO_MIN) % (24 * 60));
     }
     function renderWeek() {
         const end = weekDate(4);
         document.getElementById('week-title').textContent = `${SGT.dateLabel(SGT.localDate(state.weekStart), { day: 'numeric', month: 'short' })} – ${SGT.dateLabel(SGT.localDate(end), { day: 'numeric', month: 'short', year: 'numeric' })}`;
         const today = SGT.localDate(new Date());
         document.getElementById('week-board').innerHTML = `
-            <div class="time-column"><div class="time-heading"></div><div class="time-labels">${Array.from({ length: 11 }, (_, i) => `<span style="top:${i * 70}px">${String(i + 8).padStart(2, '0')}:00</span>`).join('')}</div></div>
+            <div class="time-column"><div class="time-heading"></div><div class="time-labels">${Array.from({ length: HORA_FECHAMENTO - HORA_ABERTURA + 1 }, (_, i) => `<span style="top:${i * PX_POR_HORA}px">${String(i + HORA_ABERTURA).padStart(2, '0')}:00</span>`).join('')}</div></div>
             ${DAY_NAMES.map((name, index) => {
                 const date = weekDate(index);
                 const dateValue = SGT.localDate(date);
@@ -55,8 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="appointment-lane">
                         ${dayItems.map((item) => {
                             const [hour, minute] = String(item.hora_agendamento).slice(0, 5).split(':').map(Number);
-                            const top = Math.max(0, ((hour * 60 + minute - 480) / 60) * 70);
-                            return `<article class="appointment-card status-${SGT.escapeHtml(item.status.toLowerCase())}" style="top:${top}px;height:58px" title="${SGT.escapeHtml(item.nome_paciente)} · ${SGT.escapeHtml(item.nome_terapeuta)}">
+                            const alturaMaxima = (HORA_FECHAMENTO - HORA_ABERTURA) * PX_POR_HORA - ALTURA_CARD;
+                            const top = Math.min(alturaMaxima, Math.max(0, ((hour * 60 + minute - HORA_ABERTURA * 60) / 60) * PX_POR_HORA));
+                            return `<article class="appointment-card status-${SGT.escapeHtml(item.status.toLowerCase())}" style="top:${top}px;height:${ALTURA_CARD}px" title="${SGT.escapeHtml(item.nome_paciente)} · ${SGT.escapeHtml(item.nome_terapeuta)}">
                                 <strong>${SGT.escapeHtml(String(item.hora_agendamento).slice(0, 5))} · ${SGT.escapeHtml(item.nome_paciente)}</strong>
                                 <span>${SGT.escapeHtml(item.nome_terapeuta)} · ${SGT.escapeHtml(item.status)}</span>
                             </article>`;
@@ -119,7 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('hidden');
         modalError.classList.add('hidden');
         const hoje = SGT.localDate(new Date());
-        const base = SGT.localDate(state.focusDate) < hoje ? new Date() : state.focusDate;
+        const agora = new Date();
+        let base = SGT.localDate(state.focusDate) < hoje ? agora : state.focusDate;
+        // Depois do último horário do dia, sugere o próximo dia útil.
+        if (SGT.localDate(base) === hoje && agora.toTimeString().slice(0, 5) > ULTIMO_INICIO) {
+            base = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1);
+        }
         dateInput.min = hoje;
         dateInput.value = SGT.localDate(proximoDiaUtil(base));
         updateDateLabel();
@@ -169,13 +185,18 @@ document.addEventListener('DOMContentLoaded', () => {
             showModalError('O consultório atende de segunda a sexta.');
             return;
         }
+        const hora = document.getElementById('appointment-time').value;
+        if (hora < minutesToTime(HORA_ABERTURA * 60) || hora > ULTIMO_INICIO) {
+            showModalError(`Escolha um início entre ${minutesToTime(HORA_ABERTURA * 60)} e ${ULTIMO_INICIO}. O consultório fecha às ${minutesToTime(HORA_FECHAMENTO * 60)}.`);
+            return;
+        }
         button.disabled = true;
         try {
             await SGT.api('/api/agendamentos', {
                 method: 'POST',
                 body: JSON.stringify({
                     data_agendamento: data,
-                    hora_agendamento: document.getElementById('appointment-time').value,
+                    hora_agendamento: hora,
                     id_paciente: Number(document.getElementById('appointment-patient').value),
                     id_terapeuta: Number(document.getElementById('appointment-therapist').value)
                 })

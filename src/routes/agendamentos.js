@@ -5,6 +5,22 @@ const { exigirTerapeuta } = require('../middleware/auth');
 const router = express.Router();
 const statusValidos = ['Agendado', 'Confirmado', 'Realizado', 'Cancelado'];
 
+// Expediente do consultório: o último atendimento precisa terminar até o fechamento.
+const ABERTURA = '08:00';
+const FECHAMENTO = '18:00';
+const DURACAO_MIN = 50;
+
+function emMinutos(hora) {
+    const [h, m] = hora.split(':').map(Number);
+    return h * 60 + m;
+}
+
+function emHora(minutos) {
+    return `${String(Math.floor(minutos / 60)).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`;
+}
+
+const ULTIMO_INICIO = emHora(emMinutos(FECHAMENTO) - DURACAO_MIN);
+
 function dataLocal(date) {
     const dois = (valor) => String(valor).padStart(2, '0');
     return `${date.getFullYear()}-${dois(date.getMonth() + 1)}-${dois(date.getDate())}`;
@@ -75,6 +91,11 @@ router.post('/', exigirTerapeuta, async (req, res) => {
     const horaAtual = agora.toTimeString().slice(0, 5);
     if (data < hoje || (data === hoje && hora <= horaAtual)) {
         return res.status(400).json({ erro: 'Não é possível agendar em uma data ou horário que já passou.' });
+    }
+    if (hora < ABERTURA || hora > ULTIMO_INICIO) {
+        return res.status(400).json({
+            erro: `O consultório atende das ${ABERTURA} às ${FECHAMENTO}. O último horário de início é ${ULTIMO_INICIO}.`
+        });
     }
     const diaSemana = new Date(`${data}T12:00:00Z`).getUTCDay();
     if (diaSemana === 0 || diaSemana === 6) {
