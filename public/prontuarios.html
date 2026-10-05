@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prontuários | SGT-O</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/prontuarios.css">
+    <script defer src="/js/navbar.js"></script>
+    <script defer src="/js/prontuarios.js"></script>
+</head>
+<body>
+    <div data-site-nav></div>
+    <main class="page">
+        <section class="page-heading">
+            <div><span class="eyebrow">Evolução clínica</span><h1>Prontuários</h1><p>Registre a evolução de cada atendimento e consulte o histórico do paciente.</p></div>
+        </section>
+        <div id="records-message" class="notice hidden" role="status"></div>
+        <section class="records-layout">
+            <article class="surface records-form-card">
+                <span class="eyebrow">Nova evolução</span>
+                <h2>Registrar atendimento</h2>
+                <form id="record-form">
+                    <div class="form-grid">
+                        <label class="field full">Paciente<select id="record-patient" name="id_paciente" required><option value="">Carregando pacientes...</option></select></label>
+                        <label class="field full">Data do atendimento<input name="data_registro" type="date" required></label>
+                        <label class="field full">Evolução<textarea name="descricao" maxlength="10000" rows="8" placeholder="Descreva o que foi trabalhado, a resposta do paciente e as orientações dadas." required></textarea></label>
+                    </div>
+                    <p class="records-note">Depois de salvo, o registro não pode ser editado nem apagado.</p>
+                    <button class="button records-submit" type="submit" disabled>Salvar evolução</button>
+                </form>
+            </article>
+            <article class="surface records-history-card">
+                <div class="records-history-heading"><span class="eyebrow">Histórico</span><h2 id="records-title">Histórico</h2></div>
+                <div id="records-list" class="records-list"><div class="empty-state">Selecione um paciente para ver o histórico.</div></div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

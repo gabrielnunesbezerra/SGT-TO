@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${SGT.escapeHtml(patient.telefone)}</td>
                 <td>${SGT.escapeHtml(patient.nome_responsavel || '—')}</td>
                 <td><div class="patient-actions">
+                    <a class="icon-button" href="/prontuarios.html?paciente=${patient.id_pessoa}" aria-label="Abrir prontuário de ${SGT.escapeHtml(patient.nome)}" title="Prontuário">≡</a>
                     <button class="icon-button" type="button" data-edit-id="${patient.id_pessoa}" aria-label="Editar ${SGT.escapeHtml(patient.nome)}" title="Editar">✎</button>
                     <button class="icon-button" type="button" data-delete-id="${patient.id_pessoa}" aria-label="Excluir ${SGT.escapeHtml(patient.nome)}" title="Excluir">×</button>
                 </div></td>

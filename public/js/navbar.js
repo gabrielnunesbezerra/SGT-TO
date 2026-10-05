@@ -59,7 +59,8 @@
             ['/painel.html', 'Painel'],
             ['/agenda.html', 'Agenda'],
             ['/consultas.html', 'Consultas'],
-            ['/pacientes.html', 'Pacientes']
+            ['/pacientes.html', 'Pacientes'],
+            ['/prontuarios.html', 'Prontuários']
         ];
     if (!links.some(([href]) => href === current)) {
         window.location.replace(inicio);

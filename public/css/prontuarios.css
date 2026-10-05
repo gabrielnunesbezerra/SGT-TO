@@ -1,0 +1,16 @@
+.records-layout { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.6fr); gap: 19px; align-items: start; }
+.records-form-card { padding: 23px; }
+.records-form-card h2, .records-history-heading h2 { margin: 5px 0 20px; font-size: 15px; }
+.records-note { margin: 14px 0 0; color: var(--muted); font-size: 12px; }
+.records-submit { width: 100%; margin-top: 16px; }
+.records-history-card { min-width: 0; }
+.records-history-heading { padding: 20px 20px 0; }
+.records-history-heading h2 { margin-bottom: 14px; }
+.records-list { border-top: 1px solid var(--line); }
+.record-item { padding: 18px 20px; border-bottom: 1px solid #edf1ee; }
+.record-item:last-child { border-bottom: 0; }
+.record-meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 12px; }
+.record-meta strong { color: var(--primary-dark); }
+.record-meta span { color: var(--muted); }
+.record-item p { margin: 0; color: var(--ink); font-size: 13px; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
+@media (max-width: 1050px) { .records-layout { grid-template-columns: 1fr; } }

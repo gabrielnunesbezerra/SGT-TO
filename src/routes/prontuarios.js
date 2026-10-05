@@ -23,11 +23,11 @@ router.post('/', async (req, res) => {
     const data = typeof req.body.data_registro === 'string' ? req.body.data_registro : '';
     const descricao = typeof req.body.descricao === 'string' ? req.body.descricao.trim() : '';
     const idPaciente = Number(req.body.id_paciente);
-    const idTerapeuta = Number(req.body.id_terapeuta);
+    const idTerapeuta = Number(req.usuario.id);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || !descricao || descricao.length > 10000
         || !Number.isSafeInteger(idPaciente) || idPaciente < 1
         || !Number.isSafeInteger(idTerapeuta) || idTerapeuta < 1) {
-        return res.status(400).json({ erro: 'Informe paciente, terapeuta, data e descrição válidos.' });
+        return res.status(400).json({ erro: 'Informe paciente, data e descrição válidos.' });
     }
     if (new Date(`${data}T00:00:00Z`).toISOString().slice(0, 10) !== data) {
         return res.status(400).json({ erro: 'A data informada não é válida.' });
