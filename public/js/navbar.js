@@ -1,7 +1,8 @@
 (() => {
-    const sair = () => {
+    const sair = (aviso) => {
         sessionStorage.removeItem('sgt-token');
         sessionStorage.removeItem('sgt-usuario');
+        if (aviso) sessionStorage.setItem('sgt-aviso', aviso);
         window.location.replace('/Login.html');
     };
     const api = async (url, options = {}) => {
@@ -15,7 +16,7 @@
             }
         });
         if (response.status === 401) {
-            sair();
+            sair('Sua sessão expirou. Entre novamente para continuar.');
             throw new Error('Sessão expirada. Faça login novamente.');
         }
         const payload = response.status === 204 ? null : await response.json();
@@ -89,5 +90,5 @@
             </nav>
             ${profileHtml}
         </header>`;
-    document.getElementById('btn-sair').addEventListener('click', sair);
+    document.getElementById('btn-sair').addEventListener('click', () => sair());
 })();

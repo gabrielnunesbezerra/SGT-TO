@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = document.getElementById('login-message');
     let modo = 'profissional';
 
+    const aviso = sessionStorage.getItem('sgt-aviso');
+    if (aviso) {
+        sessionStorage.removeItem('sgt-aviso');
+        message.textContent = aviso;
+        message.classList.remove('oculto');
+    }
+
     btnTrocar.addEventListener('click', (e) => {
         e.preventDefault();
         message.classList.add('oculto');

@@ -1,6 +1,29 @@
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
 
-const SEGREDO = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+// Sem SESSION_SECRET, o segredo fica salvo em um arquivo local (fora do Git)
+// para que reiniciar o servidor não derrube quem já está logado.
+const ARQUIVO_SEGREDO = path.join(__dirname, '..', '..', '.session-secret');
+
+function carregarSegredo() {
+    if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+    try {
+        const salvo = fs.readFileSync(ARQUIVO_SEGREDO, 'utf8').trim();
+        if (salvo) return salvo;
+    } catch {
+        // arquivo ainda não existe
+    }
+    const novo = crypto.randomBytes(32).toString('hex');
+    try {
+        fs.writeFileSync(ARQUIVO_SEGREDO, novo, { mode: 0o600 });
+    } catch (error) {
+        console.warn('Não foi possível salvar o segredo da sessão:', error.message);
+    }
+    return novo;
+}
+
+const SEGREDO = carregarSegredo();
 const DURACAO_MS = 8 * 60 * 60 * 1000; // 8 horas
 
 function assinar(conteudo) {
