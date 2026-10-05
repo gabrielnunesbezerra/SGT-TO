@@ -36,29 +36,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    [inputUsuario, inputCpf].forEach((input) => input.addEventListener('input', (event) => {
+    inputCpf.addEventListener('input', (event) => {
         let value = event.target.value.replace(/\D/g, '').slice(0, 11);
         if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2})$/, '$1.$2.$3-$4');
         else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, '$1.$2.$3');
         else if (value.length > 3) value = value.replace(/^(\d{3})(\d{1,3})$/, '$1.$2');
         event.target.value = value;
-    }));
+    });
+
+    inputUsuario.addEventListener('input', (event) => {
+        event.target.value = event.target.value.trimStart().replace(/\s{2,}/g, ' ');
+    });
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const button = form.querySelector('[type="submit"]');
-        const identificador = modo === 'profissional' ? inputUsuario.value : inputCpf.value;
+        const identificador = modo === 'profissional' ? inputUsuario.value.trim() : inputCpf.value;
         button.disabled = true;
         message.classList.add('oculto');
         try {
+            const payload = {
+                tipo: modo === 'profissional' ? 'terapeuta' : 'paciente',
+                senha: inputSenha.value
+            };
+            if (modo === 'profissional') payload.login = identificador;
+            else payload.cpf = identificador;
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tipo: modo === 'profissional' ? 'terapeuta' : 'paciente',
-                    login: identificador,
-                    senha: inputSenha.value
-                })
+                body: JSON.stringify(payload)
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.erro || 'Não foi possível entrar.');
