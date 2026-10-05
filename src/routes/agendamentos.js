@@ -21,6 +21,23 @@ function emHora(minutos) {
 
 const ULTIMO_INICIO = emHora(emMinutos(FECHAMENTO) - DURACAO_MIN);
 
+// Procura outro atendimento ativo que se sobreponha aos 50 minutos da sessão,
+// seja do mesmo terapeuta ou do mesmo paciente.
+async function buscarConflito(conexao, { data, hora, idTerapeuta, idPaciente, ignorarId = 0 }) {
+    const inicio = emMinutos(hora);
+    const choque = await conexao.get(
+        `SELECT id_terapeuta FROM AGENDAMENTO
+         WHERE data_agendamento = ? AND status <> 'Cancelado' AND id_agendamento <> ?
+           AND hora_agendamento > ? AND hora_agendamento < ?
+           AND (id_terapeuta = ? OR id_paciente = ?)`,
+        [data, ignorarId, `${emHora(inicio - DURACAO_MIN)}:00`, `${emHora(inicio + DURACAO_MIN)}:00`, idTerapeuta, idPaciente]
+    );
+    if (!choque) return null;
+    return Number(choque.id_terapeuta) === Number(idTerapeuta)
+        ? 'O terapeuta já tem um atendimento que ocupa esse horário.'
+        : 'O paciente já tem um atendimento que ocupa esse horário.';
+}
+
 function dataLocal(date) {
     const dois = (valor) => String(valor).padStart(2, '0');
     return `${date.getFullYear()}-${dois(date.getMonth() + 1)}-${dois(date.getDate())}`;
@@ -111,14 +128,9 @@ router.post('/', exigirTerapeuta, async (req, res) => {
     try {
         const agendamento = await db.transaction(async (tx) => {
             await tx.lockTherapist(idTerapeuta);
-            const choque = await tx.get(
-                `SELECT id_agendamento FROM AGENDAMENTO
-                 WHERE data_agendamento = ? AND hora_agendamento = ? AND id_terapeuta = ?
-                   AND status <> 'Cancelado'`,
-                [data, horaCompleta, idTerapeuta]
-            );
-            if (choque) {
-                const error = new Error('O terapeuta já possui um atendimento nesse dia e horário.');
+            const conflito = await buscarConflito(tx, { data, hora, idTerapeuta, idPaciente });
+            if (conflito) {
+                const error = new Error(conflito);
                 error.status = 409;
                 throw error;
             }
@@ -154,9 +166,24 @@ router.patch('/:id/status', exigirTerapeuta, async (req, res) => {
     if (!Number.isSafeInteger(id) || id < 1 || !statusValidos.includes(status)) {
         return res.status(400).json({ erro: 'ID ou status inválido.' });
     }
-    const appointment = await db.get('SELECT id_agendamento FROM AGENDAMENTO WHERE id_agendamento = ?', [id]);
+    const appointment = await db.get(
+        `SELECT id_agendamento, data_agendamento, hora_agendamento, status, id_terapeuta, id_paciente
+         FROM AGENDAMENTO WHERE id_agendamento = ?`,
+        [id]
+    );
     if (!appointment) return res.status(404).json({ erro: 'Agendamento não encontrado.' });
-    const result = await db.run('UPDATE AGENDAMENTO SET status = ? WHERE id_agendamento = ?', [status, id]);
+    // Reativar uma consulta cancelada não pode ocupar um horário que já foi reaproveitado.
+    if (appointment.status === 'Cancelado' && status !== 'Cancelado') {
+        const conflito = await buscarConflito(db, {
+            data: String(appointment.data_agendamento).slice(0, 10),
+            hora: String(appointment.hora_agendamento).slice(0, 5),
+            idTerapeuta: appointment.id_terapeuta,
+            idPaciente: appointment.id_paciente,
+            ignorarId: id
+        });
+        if (conflito) return res.status(409).json({ erro: conflito });
+    }
+    await db.run('UPDATE AGENDAMENTO SET status = ? WHERE id_agendamento = ?', [status, id]);
     res.json({ id_agendamento: id, status });
 });
 
