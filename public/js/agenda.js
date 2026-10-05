@@ -77,11 +77,22 @@ document.addEventListener('DOMContentLoaded', () => {
             ? waiting.map((patient) => `<div class="waiting-person">${SGT.escapeHtml(patient.nome)}<span>${SGT.escapeHtml(patient.telefone || 'Sem telefone cadastrado')}</span></div>`).join('')
             : '<div class="empty-state">Todos os pacientes têm horário futuro.</div>';
     }
+    const currentUser = (() => {
+        try {
+            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
+        } catch (error) {
+            return null;
+        }
+    })();
     async function loadWeek() {
         try {
             const inicio = SGT.localDate(state.weekStart);
             const fim = SGT.localDate(weekDate(4));
-            state.appointments = await SGT.api(`/api/agendamentos?inicio=${inicio}&fim=${fim}`);
+            const params = new URLSearchParams({ inicio, fim });
+            if (currentUser && currentUser.tipo === 'terapeuta') {
+                params.set('id_terapeuta', String(currentUser.id));
+            }
+            state.appointments = await SGT.api(`/api/agendamentos?${params.toString()}`);
             renderWeek();
             renderWaitingList();
             errorBox.className = 'notice hidden';

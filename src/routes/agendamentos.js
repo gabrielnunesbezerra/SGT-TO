@@ -14,7 +14,7 @@ router.get('/terapeutas', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-    const { inicio, fim } = req.query;
+    const { inicio, fim, id_terapeuta, id_paciente } = req.query;
     const filtros = [];
     const params = [];
     if (inicio) {
@@ -24,6 +24,14 @@ router.get('/', async (req, res) => {
     if (fim) {
         filtros.push('a.data_agendamento <= ?');
         params.push(fim);
+    }
+    if (id_terapeuta) {
+        filtros.push('a.id_terapeuta = ?');
+        params.push(Number(id_terapeuta));
+    }
+    if (id_paciente) {
+        filtros.push('a.id_paciente = ?');
+        params.push(Number(id_paciente));
     }
     const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
     const agendamentos = await db.all(

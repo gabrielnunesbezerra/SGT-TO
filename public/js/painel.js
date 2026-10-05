@@ -1,5 +1,16 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const message = document.getElementById('dashboard-message');
+    const heading = document.querySelector('.page-heading h1');
+    const currentUser = (() => {
+        try {
+            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
+        } catch (error) {
+            return null;
+        }
+    })();
+    if (currentUser && heading) {
+        heading.textContent = `Bom dia, ${currentUser.nome.split(' ')[0]}`;
+    }
     const showError = (error) => {
         message.textContent = error.message;
         message.className = 'notice error';
@@ -7,15 +18,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const [pacientes, agendamentos] = await Promise.all([
             SGT.api('/api/pacientes'),
-            SGT.api('/api/agendamentos')
+            SGT.api(`/api/agendamentos${currentUser && currentUser.tipo === 'terapeuta' ? `?id_terapeuta=${currentUser.id}` : ''}`)
         ]);
         const hoje = SGT.localDate(new Date());
-        const deHoje = agendamentos.filter((item) => String(item.data_agendamento).slice(0, 10) === hoje)
+        const agendaFiltrada = currentUser && currentUser.tipo === 'terapeuta'
+            ? agendamentos.filter((item) => Number(item.id_terapeuta) === Number(currentUser.id))
+            : agendamentos;
+        const deHoje = agendaFiltrada.filter((item) => String(item.data_agendamento).slice(0, 10) === hoje)
             .sort((a, b) => String(a.hora_agendamento).localeCompare(String(b.hora_agendamento)));
         document.getElementById('total-pacientes').textContent = pacientes.length;
         document.getElementById('consultas-hoje').textContent = deHoje.length;
         const agora = new Date().toTimeString().slice(0, 5);
-        const proximos = agendamentos.filter((item) => {
+        const proximos = agendaFiltrada.filter((item) => {
             const date = String(item.data_agendamento).slice(0, 10);
             return item.status !== 'Cancelado' && (date > hoje || (date === hoje && String(item.hora_agendamento).slice(0, 5) >= agora));
         }).sort((a, b) => `${a.data_agendamento}`.localeCompare(`${b.data_agendamento}`) || String(a.hora_agendamento).localeCompare(String(b.hora_agendamento)));

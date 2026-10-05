@@ -31,9 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             </tr>`).join('');
     }
+    const currentUser = (() => {
+        try {
+            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
+        } catch (error) {
+            return null;
+        }
+    })();
     async function load() {
         try {
-            appointments = await SGT.api('/api/agendamentos');
+            const query = currentUser && currentUser.tipo === 'terapeuta'
+                ? `/api/agendamentos?id_terapeuta=${currentUser.id}`
+                : '/api/agendamentos';
+            appointments = await SGT.api(query);
             render();
         } catch (error) {
             message.textContent = error.message;
