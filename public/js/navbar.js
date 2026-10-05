@@ -32,6 +32,21 @@
         ['/pacientes.html', 'Pacientes']
     ];
     const current = location.pathname.toLowerCase();
+    const usuario = (() => {
+        try {
+            return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
+        } catch (error) {
+            return null;
+        }
+    })();
+    const profileHtml = usuario ? `
+        <div class="profile-pill" aria-label="Perfil do usuário atual">
+            <span class="profile-avatar">${escapeHtml((usuario.nome || 'U').split(' ').slice(0, 2).map((part) => part[0]).join('').slice(0, 2).toUpperCase())}</span>
+            <div class="profile-copy">
+                <strong>${escapeHtml(usuario.nome || 'Usuário')}</strong>
+                <small>${usuario.tipo === 'terapeuta' ? 'Terapeuta' : 'Responsável'}</small>
+            </div>
+        </div>` : '<span class="topbar-end">Gestão clínica</span>';
     outlet.innerHTML = `
         <header class="topbar">
             <a class="brand" href="/painel.html" aria-label="SGT-O, ir ao painel">
@@ -41,6 +56,6 @@
             <nav class="main-nav" aria-label="Navegação principal">
                 ${links.map(([href, label]) => `<a class="nav-link ${current === href ? 'active' : ''}" href="${href}" ${current === href ? 'aria-current="page"' : ''}>${label}</a>`).join('')}
             </nav>
-            <span class="topbar-end">Gestão clínica</span>
+            ${profileHtml}
         </header>`;
 })();

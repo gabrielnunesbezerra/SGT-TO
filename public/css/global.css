@@ -43,6 +43,45 @@ button { cursor: pointer; }
 .nav-link:hover, .nav-link.active { color: var(--primary-dark); }
 .nav-link.active { border-bottom-color: var(--primary); }
 .topbar-end { margin-left: auto; color: var(--muted); font-size: 12px; }
+.profile-pill {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px 8px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--canvas);
+    color: var(--ink);
+    box-shadow: 0 8px 20px rgb(91 33 182 / 4%);
+}
+.profile-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .05em;
+}
+.profile-copy {
+    display: grid;
+    gap: 2px;
+    text-align: left;
+}
+.profile-copy strong {
+    font-size: 12px;
+    letter-spacing: -.1px;
+}
+.profile-copy small {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
 
 .page { width: min(1440px, calc(100% - 64px)); margin: 38px auto 64px; }
 .page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 26px; }
