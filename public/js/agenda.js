@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PX_POR_HORA = 70;
     const ULTIMO_INICIO = minutesToTime(HORA_FECHAMENTO * 60 - DURACAO_MIN);
     const ALTURA_CARD = Math.round((DURACAO_MIN / 60) * PX_POR_HORA);
-    const state = { weekStart: mondayOf(new Date()), focusDate: new Date(), month: new Date(), patients: [], therapists: [], appointments: [] };
+    const state = { weekStart: mondayOf(new Date()), focusDate: new Date(), month: new Date(), patients: [], therapists: [], appointments: [], upcoming: [] };
     const errorBox = document.getElementById('agenda-message');
     const modal = document.getElementById('appointment-modal');
     const modalError = document.getElementById('modal-error');
@@ -94,13 +94,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
     }
     function renderWaitingList() {
-        const futurePatientIds = new Set(state.appointments
-            .filter((item) => String(item.data_agendamento).slice(0, 10) >= SGT.localDate(new Date()) && item.status !== 'Cancelado')
+        const futurePatientIds = new Set(state.upcoming
+            .filter((item) => item.status !== 'Cancelado')
             .map((item) => Number(item.id_paciente)));
-        const waiting = state.patients.filter((patient) => !futurePatientIds.has(Number(patient.id_pessoa))).slice(0, 5);
+        const waiting = state.patients.filter((patient) => !futurePatientIds.has(Number(patient.id_pessoa)));
         document.getElementById('waiting-count').textContent = waiting.length;
         document.getElementById('waiting-list').innerHTML = waiting.length
-            ? waiting.map((patient) => `<div class="waiting-person">${SGT.escapeHtml(patient.nome)}<span>${SGT.escapeHtml(patient.telefone || 'Sem telefone cadastrado')}</span></div>`).join('')
+            ? waiting.slice(0, 5).map((patient) => `<div class="waiting-person">${SGT.escapeHtml(patient.nome)}<span>${SGT.escapeHtml(patient.telefone || 'Sem telefone cadastrado')}</span></div>`).join('')
             : '<div class="empty-state">Todos os pacientes têm horário futuro.</div>';
     }
     const currentUser = (() => {
@@ -120,11 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             state.appointments = await SGT.api(`/api/agendamentos?${params.toString()}`);
             renderWeek();
-            renderWaitingList();
             errorBox.className = 'notice hidden';
         } catch (error) {
             showError(error);
         }
+    }
+    // A lista de espera olha todas as consultas a partir de hoje, não só a semana aberta na tela.
+    async function loadWaitingList() {
+        state.upcoming = await SGT.api(`/api/agendamentos?inicio=${SGT.localDate(new Date())}`);
+        renderWaitingList();
     }
     function openModal() {
         modal.classList.remove('hidden');
@@ -204,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal();
             state.focusDate = new Date(`${data}T12:00:00`);
             state.weekStart = mondayOf(state.focusDate);
-            await loadWeek();
+            await Promise.all([loadWeek(), loadWaitingList()]);
         } catch (error) {
             showModalError(error.message);
         } finally {
@@ -220,7 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 + patients.map((patient) => `<option value="${patient.id_pessoa}">${SGT.escapeHtml(patient.nome)}</option>`).join('');
             document.getElementById('appointment-therapist').innerHTML = '<option value="">Selecione um terapeuta</option>'
                 + therapists.map((therapist) => `<option value="${therapist.id_pessoa}">${SGT.escapeHtml(therapist.nome)} · ${SGT.escapeHtml(therapist.especialidade)}</option>`).join('');
-            return loadWeek();
+            if (currentUser && therapists.some((therapist) => Number(therapist.id_pessoa) === Number(currentUser.id))) {
+                document.getElementById('appointment-therapist').value = String(currentUser.id);
+            }
+            return Promise.all([loadWeek(), loadWaitingList()]);
         })
         .catch(showError);
 });
