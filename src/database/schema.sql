@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS MENSAGEM (
     data_envio TEXT NOT NULL,
     id_terapeuta INTEGER NOT NULL,
     id_paciente INTEGER NOT NULL,
+    remetente TEXT NOT NULL DEFAULT 'paciente'
+        CHECK (remetente IN ('terapeuta', 'paciente')),
     FOREIGN KEY (id_terapeuta) REFERENCES TERAPEUTA(id_pessoa),
     FOREIGN KEY (id_paciente) REFERENCES PACIENTE(id_pessoa)
 );
@@ -55,3 +57,4 @@ CREATE TABLE IF NOT EXISTS MENSAGEM (
 CREATE INDEX IF NOT EXISTS idx_agendamento_data ON AGENDAMENTO(data_agendamento);
 CREATE INDEX IF NOT EXISTS idx_agendamento_terapeuta_data ON AGENDAMENTO(id_terapeuta, data_agendamento);
 CREATE INDEX IF NOT EXISTS idx_prontuario_paciente_data ON PRONTUARIO(id_paciente, data_registro);
+CREATE INDEX IF NOT EXISTS idx_mensagem_conversa ON MENSAGEM(id_terapeuta, id_paciente, data_envio);

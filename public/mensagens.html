@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mensagens | SGT-O</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/mensagens.css">
+    <script defer src="/js/navbar.js"></script>
+    <script defer src="/js/mensagens.js"></script>
+</head>
+<body>
+    <div data-site-nav></div>
+    <main class="page">
+        <section class="page-heading">
+            <div><span class="eyebrow">Comunicação</span><h1>Mensagens</h1><p id="messages-subtitle">Tire dúvidas e combine detalhes dos atendimentos.</p></div>
+        </section>
+        <div id="messages-message" class="notice hidden" role="status"></div>
+        <section class="chat-layout">
+            <aside class="surface contacts-card">
+                <div class="contacts-heading"><span class="eyebrow">Conversas</span><h2 id="contacts-title">Contatos</h2></div>
+                <div id="contacts-list" class="contacts-list"><div class="loading-state">Carregando contatos...</div></div>
+            </aside>
+            <article class="surface chat-card">
+                <div class="chat-heading"><span class="eyebrow">Conversa</span><h2 id="chat-title">Selecione um contato</h2></div>
+                <div id="chat-thread" class="chat-thread" aria-live="polite"><div class="empty-state">Escolha um contato ao lado para ver as mensagens.</div></div>
+                <form id="chat-form" class="chat-form">
+                    <label class="sr-only" for="chat-input">Mensagem</label>
+                    <textarea id="chat-input" name="conteudo" rows="2" maxlength="2000" placeholder="Escreva sua mensagem..." disabled required></textarea>
+                    <button class="button" type="submit" disabled>Enviar</button>
+                </form>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

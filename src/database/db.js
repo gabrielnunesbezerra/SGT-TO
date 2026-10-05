@@ -95,10 +95,33 @@ const mysqlSchema = [
         data_envio DATETIME NOT NULL,
         id_terapeuta INT NOT NULL,
         id_paciente INT NOT NULL,
+        remetente ENUM('terapeuta', 'paciente') NOT NULL DEFAULT 'paciente',
         FOREIGN KEY (id_terapeuta) REFERENCES TERAPEUTA(id_pessoa),
-        FOREIGN KEY (id_paciente) REFERENCES PACIENTE(id_pessoa)
+        FOREIGN KEY (id_paciente) REFERENCES PACIENTE(id_pessoa),
+        INDEX idx_mensagem_conversa (id_terapeuta, id_paciente, data_envio)
     ) ENGINE=InnoDB`
 ];
+
+// Bancos criados antes do módulo de mensagens não têm a coluna "remetente".
+async function migrate() {
+    if (driver === 'sqlite') {
+        const colunas = sqlite.prepare('PRAGMA table_info(MENSAGEM)').all();
+        if (!colunas.some((coluna) => coluna.name === 'remetente')) {
+            sqlite.exec(`ALTER TABLE MENSAGEM ADD COLUMN remetente TEXT NOT NULL DEFAULT 'paciente'
+                CHECK (remetente IN ('terapeuta', 'paciente'))`);
+        }
+        return;
+    }
+    const [colunas] = await pool.execute(
+        `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'MENSAGEM' AND COLUMN_NAME = 'remetente'`
+    );
+    if (!colunas.length) {
+        await pool.execute(
+            "ALTER TABLE MENSAGEM ADD COLUMN remetente ENUM('terapeuta', 'paciente') NOT NULL DEFAULT 'paciente'"
+        );
+    }
+}
 
 async function withTransaction(callback) {
     if (driver === 'sqlite') {
@@ -209,6 +232,7 @@ async function initialize() {
         throw new Error(`DB_DRIVER inválido: ${driver}. Use sqlite ou mysql.`);
     }
 
+    await migrate();
     await seed();
 }
 

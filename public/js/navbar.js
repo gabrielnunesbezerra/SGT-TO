@@ -54,13 +54,14 @@
     const ehPaciente = usuario.tipo === 'paciente';
     const inicio = ehPaciente ? '/consultas.html' : '/painel.html';
     const links = ehPaciente
-        ? [['/consultas.html', 'Minhas consultas']]
+        ? [['/consultas.html', 'Minhas consultas'], ['/mensagens.html', 'Mensagens']]
         : [
             ['/painel.html', 'Painel'],
             ['/agenda.html', 'Agenda'],
             ['/consultas.html', 'Consultas'],
             ['/pacientes.html', 'Pacientes'],
-            ['/prontuarios.html', 'Prontuários']
+            ['/prontuarios.html', 'Prontuários'],
+            ['/mensagens.html', 'Mensagens']
         ];
     if (!links.some(([href]) => href === current)) {
         window.location.replace(inicio);
