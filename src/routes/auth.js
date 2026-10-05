@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../database/db');
+const { criarToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -34,10 +35,8 @@ router.post('/login', async (req, res) => {
         if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) {
             return res.status(401).json({ erro: 'CPF ou senha incorretos.' });
         }
-        return res.json({
-            sucesso: true,
-            usuario: { id: usuario.id_pessoa, nome: usuario.nome, tipo }
-        });
+        const dados = { id: usuario.id_pessoa, nome: usuario.nome, tipo };
+        return res.json({ sucesso: true, token: criarToken(dados), usuario: dados });
     }
 
     const usuarios = await db.all(
@@ -59,10 +58,8 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ erro: 'Usuário ou senha incorretos.' });
     }
 
-    return res.json({
-        sucesso: true,
-        usuario: { id: usuario.id_pessoa, nome: usuario.nome, tipo }
-    });
+    const dados = { id: usuario.id_pessoa, nome: usuario.nome, tipo };
+    return res.json({ sucesso: true, token: criarToken(dados), usuario: dados });
 });
 
 module.exports = router;

@@ -1,8 +1,13 @@
 (() => {
     const api = async (url, options = {}) => {
+        const token = sessionStorage.getItem('sgt-token');
         const response = await fetch(url, {
             ...options,
-            headers: { 'Content-Type': 'application/json', ...options.headers }
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                ...options.headers
+            }
         });
         const payload = response.status === 204 ? null : await response.json();
         if (!response.ok) throw new Error(payload?.erro || 'Não foi possível concluir a solicitação.');

@@ -1,0 +1,50 @@
+const crypto = require('node:crypto');
+
+const SEGREDO = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const DURACAO_MS = 8 * 60 * 60 * 1000; // 8 horas
+
+function assinar(conteudo) {
+    return crypto.createHmac('sha256', SEGREDO).update(conteudo).digest('base64url');
+}
+
+function criarToken(usuario) {
+    const payload = Buffer.from(JSON.stringify({
+        id: usuario.id,
+        tipo: usuario.tipo,
+        exp: Date.now() + DURACAO_MS
+    })).toString('base64url');
+    return `${payload}.${assinar(payload)}`;
+}
+
+function lerToken(token) {
+    const [payload, assinatura] = String(token || '').split('.');
+    if (!payload || !assinatura) return null;
+    const esperada = assinar(payload);
+    if (assinatura.length !== esperada.length
+        || !crypto.timingSafeEqual(Buffer.from(assinatura), Buffer.from(esperada))) {
+        return null;
+    }
+    try {
+        const dados = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+        return dados.exp > Date.now() ? dados : null;
+    } catch {
+        return null;
+    }
+}
+
+function exigirLogin(req, res, next) {
+    const cabecalho = req.get('Authorization') || '';
+    const usuario = lerToken(cabecalho.startsWith('Bearer ') ? cabecalho.slice(7) : '');
+    if (!usuario) return res.status(401).json({ erro: 'Sessão expirada. Faça login novamente.' });
+    req.usuario = usuario;
+    next();
+}
+
+function exigirTerapeuta(req, res, next) {
+    if (req.usuario?.tipo !== 'terapeuta') {
+        return res.status(403).json({ erro: 'Acesso restrito aos terapeutas.' });
+    }
+    next();
+}
+
+module.exports = { criarToken, exigirLogin, exigirTerapeuta };
