@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('node:path');
 const db = require('./src/database/db');
+const { exigirLogin, exigirTerapeuta } = require('./src/middleware/auth');
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
@@ -13,9 +14,9 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/auth', require('./src/routes/auth'));
-app.use('/api/pacientes', require('./src/routes/pacientes'));
-app.use('/api/agendamentos', require('./src/routes/agendamentos'));
-app.use('/api/prontuarios', require('./src/routes/prontuarios'));
+app.use('/api/pacientes', exigirLogin, exigirTerapeuta, require('./src/routes/pacientes'));
+app.use('/api/agendamentos', exigirLogin, exigirTerapeuta, require('./src/routes/agendamentos'));
+app.use('/api/prontuarios', exigirLogin, exigirTerapeuta, require('./src/routes/prontuarios'));
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

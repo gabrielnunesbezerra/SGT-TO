@@ -43,8 +43,9 @@ button { cursor: pointer; }
 .nav-link:hover, .nav-link.active { color: var(--primary-dark); }
 .nav-link.active { border-bottom-color: var(--primary); }
 .topbar-end { margin-left: auto; color: var(--muted); font-size: 12px; }
+.topbar-user { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.logout-button { min-height: 36px; padding: 0 14px; }
 .profile-pill {
-    margin-left: auto;
     display: inline-flex;
     align-items: center;
     gap: 10px;

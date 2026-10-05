@@ -1,4 +1,9 @@
 (() => {
+    const sair = () => {
+        sessionStorage.removeItem('sgt-token');
+        sessionStorage.removeItem('sgt-usuario');
+        window.location.replace('/Login.html');
+    };
     const api = async (url, options = {}) => {
         const token = sessionStorage.getItem('sgt-token');
         const response = await fetch(url, {
@@ -9,6 +14,10 @@
                 ...options.headers
             }
         });
+        if (response.status === 401) {
+            sair();
+            throw new Error('Sessão expirada. Faça login novamente.');
+        }
         const payload = response.status === 204 ? null : await response.json();
         if (!response.ok) throw new Error(payload?.erro || 'Não foi possível concluir a solicitação.');
         return payload;
@@ -26,7 +35,7 @@
         const date = new Date(`${String(value).slice(0, 10)}T12:00:00`);
         return new Intl.DateTimeFormat('pt-BR', options).format(date);
     };
-    window.SGT = { api, escapeHtml, localDate, dateLabel };
+    window.SGT = { api, escapeHtml, localDate, dateLabel, sair };
 
     const outlet = document.querySelector('[data-site-nav]');
     if (!outlet) return;
@@ -44,14 +53,21 @@
             return null;
         }
     })();
-    const profileHtml = usuario ? `
+    if (!usuario || !sessionStorage.getItem('sgt-token')) {
+        sair();
+        return;
+    }
+    const profileHtml = `
+        <div class="topbar-user">
         <div class="profile-pill" aria-label="Perfil do usuário atual">
             <span class="profile-avatar">${escapeHtml((usuario.nome || 'U').split(' ').slice(0, 2).map((part) => part[0]).join('').slice(0, 2).toUpperCase())}</span>
             <div class="profile-copy">
                 <strong>${escapeHtml(usuario.nome || 'Usuário')}</strong>
                 <small>${usuario.tipo === 'terapeuta' ? 'Terapeuta' : 'Responsável'}</small>
             </div>
-        </div>` : '<span class="topbar-end">Gestão clínica</span>';
+        </div>
+        <button type="button" class="button secondary logout-button" id="btn-sair">Sair</button>
+        </div>`;
     outlet.innerHTML = `
         <header class="topbar">
             <a class="brand" href="/painel.html" aria-label="SGT-O, ir ao painel">
@@ -63,4 +79,5 @@
             </nav>
             ${profileHtml}
         </header>`;
+    document.getElementById('btn-sair').addEventListener('click', sair);
 })();
