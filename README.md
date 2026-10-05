@@ -11,7 +11,7 @@ npm install
 npm start
 ```
 
-Abra `http://localhost:3001`. Na primeira execução o banco SQLite é criado em `src/database/sgt-to.sqlite` e recebe dados demonstrativos. Os usuários demonstrativos usam a senha `123456`; terapeutas de exemplo: CPF `11111111111` e `22222222222`. Pacientes de exemplo: CPF de `00000000001` a `00000000005`.
+Abra `http://localhost:3001`. Na primeira execução o banco SQLite é criado em `src/database/sgt-to.sqlite` e recebe dados demonstrativos. Os usuários demonstrativos usam a senha `123456`; terapeutas de exemplo: Gabriel Tavares (`gabriel` ou `gabrieltavares`) e Lucas Daniel (`lucas` ou `lucasdaniel`). Pacientes de exemplo: CPF de `00000000001` a `00000000005`.
 
 Para escolher outro local para o SQLite, defina `DB_PATH`. O banco padrão é local e não deve ser publicado.
 

@@ -143,14 +143,16 @@ async function seed() {
     };
     const appointments = [
         [dateOffset(0), '09:00:00', 1, 3],
+        [dateOffset(1), '10:00:00', 1, 5],
         [dateOffset(0), '14:00:00', 2, 4],
-        [dateOffset(1), '10:00:00', 1, 5]
+        [dateOffset(1), '11:30:00', 2, 6],
+        [dateOffset(2), '15:30:00', 2, 7]
     ];
 
     await withTransaction(async (tx) => {
         const people = [
-            ['Ana Paula Terapeuta', '11111111111', '11999990001'],
-            ['Bruno Lima Terapeuta', '22222222222', '11999990002'],
+            ['Gabriel Tavares', '11111111111', '11999990001'],
+            ['Lucas Daniel', '22222222222', '11999990002'],
             ['Mariana Costa', '00000000001', '11999990101'],
             ['Pedro Henrique', '00000000002', '11999990102'],
             ['Julia Santos', '00000000003', '11999990103'],
@@ -164,7 +166,7 @@ async function seed() {
             );
         }
         await tx.run('INSERT INTO TERAPEUTA (id_pessoa, especialidade) VALUES (?, ?)', [1, 'Terapia ocupacional']);
-        await tx.run('INSERT INTO TERAPEUTA (id_pessoa, especialidade) VALUES (?, ?)', [2, 'Integração sensorial']);
+        await tx.run('INSERT INTO TERAPEUTA (id_pessoa, especialidade) VALUES (?, ?)', [2, 'Psicoterapia infantil']);
         const responsaveis = ['Carla Costa', 'Roberto Henrique', 'Fernanda Santos', 'Paula Almeida', 'Renato Oliveira'];
         for (let index = 0; index < responsaveis.length; index += 1) {
             await tx.run(
