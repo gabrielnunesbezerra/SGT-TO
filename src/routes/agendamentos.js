@@ -5,6 +5,11 @@ const { exigirTerapeuta } = require('../middleware/auth');
 const router = express.Router();
 const statusValidos = ['Agendado', 'Confirmado', 'Realizado', 'Cancelado'];
 
+function dataLocal(date) {
+    const dois = (valor) => String(valor).padStart(2, '0');
+    return `${date.getFullYear()}-${dois(date.getMonth() + 1)}-${dois(date.getDate())}`;
+}
+
 router.get('/terapeutas', exigirTerapeuta, async (req, res) => {
     const terapeutas = await db.all(
         `SELECT p.id_pessoa, p.nome, t.especialidade
@@ -64,6 +69,16 @@ router.post('/', exigirTerapeuta, async (req, res) => {
     }
     if (new Date(`${data}T00:00:00Z`).toISOString().slice(0, 10) !== data) {
         return res.status(400).json({ erro: 'A data informada não é válida.' });
+    }
+    const agora = new Date();
+    const hoje = dataLocal(agora);
+    const horaAtual = agora.toTimeString().slice(0, 5);
+    if (data < hoje || (data === hoje && hora <= horaAtual)) {
+        return res.status(400).json({ erro: 'Não é possível agendar em uma data ou horário que já passou.' });
+    }
+    const diaSemana = new Date(`${data}T12:00:00Z`).getUTCDay();
+    if (diaSemana === 0 || diaSemana === 6) {
+        return res.status(400).json({ erro: 'O consultório atende de segunda a sexta.' });
     }
 
     const terapeuta = await db.get('SELECT id_pessoa FROM TERAPEUTA WHERE id_pessoa = ?', [idTerapeuta]);

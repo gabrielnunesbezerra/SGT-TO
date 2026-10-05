@@ -49,5 +49,6 @@
 .end-time { padding: 10px 12px; border-radius: 8px; color: #667771; background: #f3f8f5; font-size: 11px; }
 .end-time strong { margin-left: 7px; color: var(--primary); font-size: 15px; }
 .end-time small { display: block; margin-top: 4px; color: #91a099; font-size: 10px; }
+.end-time .day-label { display: block; margin-bottom: 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
 @media (max-width: 1000px) { .agenda-layout { grid-template-columns: 1fr; } .agenda-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .waiting-card { grid-column: 1 / -1; } }
 @media (max-width: 650px) { .calendar-toolbar { align-items: flex-start; flex-direction: column; } .week-actions h2 { font-size: 12px; } .week-board { grid-template-columns: 42px repeat(5, 112px); } .agenda-sidebar { grid-template-columns: 1fr; } .waiting-card { grid-column: auto; } }

@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const DAY_NAMES = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
-    const DAY_FULL = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
     const state = { weekStart: mondayOf(new Date()), focusDate: new Date(), month: new Date(), patients: [], therapists: [], appointments: [] };
     const errorBox = document.getElementById('agenda-message');
     const modal = document.getElementById('appointment-modal');
     const modalError = document.getElementById('modal-error');
+    const dateInput = document.getElementById('appointment-date');
 
     function mondayOf(date) {
         const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -15,6 +15,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const date = new Date(state.weekStart);
         date.setDate(date.getDate() + index);
         return date;
+    }
+    function proximoDiaUtil(date) {
+        const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        while (result.getDay() === 0 || result.getDay() === 6) result.setDate(result.getDate() + 1);
+        return result;
+    }
+    function updateDateLabel() {
+        const texto = dateInput.value
+            ? SGT.dateLabel(dateInput.value, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+            : 'Selecione a data';
+        document.getElementById('appointment-day-label').textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+    function showModalError(text) {
+        modalError.textContent = text;
+        modalError.classList.remove('hidden');
     }
     function showError(error) {
         errorBox.textContent = error.message;
@@ -103,7 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal() {
         modal.classList.remove('hidden');
         modalError.classList.add('hidden');
-        document.getElementById('appointment-day').value = String(Math.max(0, Math.min(4, ((new Date().getDay() + 6) % 7))));
+        const hoje = SGT.localDate(new Date());
+        const base = SGT.localDate(state.focusDate) < hoje ? new Date() : state.focusDate;
+        dateInput.min = hoje;
+        dateInput.value = SGT.localDate(proximoDiaUtil(base));
+        updateDateLabel();
         updateEndTime();
     }
     function closeModal() {
@@ -139,27 +158,34 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancelar-modal').addEventListener('click', closeModal);
     modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
     document.getElementById('appointment-time').addEventListener('input', updateEndTime);
+    dateInput.addEventListener('input', updateDateLabel);
     document.getElementById('appointment-form').addEventListener('submit', async (event) => {
         event.preventDefault();
         const button = event.currentTarget.querySelector('[type="submit"]');
-        button.disabled = true;
         modalError.classList.add('hidden');
-        const date = weekDate(Number(document.getElementById('appointment-day').value));
+        const data = dateInput.value;
+        const diaSemana = new Date(`${data}T12:00:00`).getDay();
+        if (diaSemana === 0 || diaSemana === 6) {
+            showModalError('O consultório atende de segunda a sexta.');
+            return;
+        }
+        button.disabled = true;
         try {
             await SGT.api('/api/agendamentos', {
                 method: 'POST',
                 body: JSON.stringify({
-                    data_agendamento: SGT.localDate(date),
+                    data_agendamento: data,
                     hora_agendamento: document.getElementById('appointment-time').value,
                     id_paciente: Number(document.getElementById('appointment-patient').value),
                     id_terapeuta: Number(document.getElementById('appointment-therapist').value)
                 })
             });
             closeModal();
+            state.focusDate = new Date(`${data}T12:00:00`);
+            state.weekStart = mondayOf(state.focusDate);
             await loadWeek();
         } catch (error) {
-            modalError.textContent = error.message;
-            modalError.classList.remove('hidden');
+            showModalError(error.message);
         } finally {
             button.disabled = false;
         }
