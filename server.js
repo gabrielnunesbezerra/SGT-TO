@@ -37,7 +37,16 @@ app.use((err, req, res, next) => {
 
 db.initialize()
     .then(() => {
-        app.listen(port, () => console.log(`Servidor rodando em http://localhost:${port}`));
+        const servidor = app.listen(port, () => console.log(`Servidor rodando em http://localhost:${port}`));
+        servidor.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error(`A porta ${port} já está em uso. Outro servidor do SGT-TO provavelmente continua aberto:`
+                    + ' feche o outro terminal (Ctrl+C) e rode npm start de novo.');
+            } else {
+                console.error('Não foi possível iniciar o servidor:', error);
+            }
+            process.exit(1);
+        });
     })
     .catch((error) => {
         console.error('Não foi possível inicializar o banco de dados:', error);
