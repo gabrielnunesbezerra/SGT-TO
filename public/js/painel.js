@@ -1,4 +1,12 @@
+// ===========================================================================
+//                         Tela do painel (painel.js)
+//   Resumo do dia: pacientes, consultas de hoje e próximo atendimento.
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', async () => {
+    // -----------------------------------------------------------------------
+    //                                Saudação
+    // -----------------------------------------------------------------------
     const message = document.getElementById('dashboard-message');
     const heading = document.querySelector('.page-heading h1');
     const currentUser = SGT.usuario;
@@ -11,6 +19,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         message.textContent = error.message;
         message.className = 'notice error';
     };
+
+    // -----------------------------------------------------------------------
+    //                      Indicadores e agenda de hoje
+    // -----------------------------------------------------------------------
     try {
         const [pacientes, agendamentos] = await Promise.all([
             SGT.api('/api/pacientes'),

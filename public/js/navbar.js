@@ -1,10 +1,23 @@
+// ===========================================================================
+//                     Funções comuns e menu (navbar.js)
+//   Carregado em todas as telas internas. Cria o objeto SGT e monta o menu do topo.
+// ===========================================================================
+
 (() => {
+    // -----------------------------------------------------------------------
+    //                            Sair do sistema
+    // -----------------------------------------------------------------------
     const sair = (aviso) => {
         sessionStorage.removeItem('sgt-token');
         sessionStorage.removeItem('sgt-usuario');
         if (aviso) sessionStorage.setItem('sgt-aviso', aviso);
         window.location.replace('/entrar.html');
     };
+
+    // -----------------------------------------------------------------------
+    //                              Acesso à API
+    //   Toda chamada passa por aqui: envia o token e trata a sessão expirada.
+    // -----------------------------------------------------------------------
     const api = async (url, options = {}) => {
         const token = sessionStorage.getItem('sgt-token');
         const response = await fetch(url, {
@@ -23,6 +36,11 @@
         if (!response.ok) throw new Error(payload?.erro || 'Não foi possível concluir a solicitação.');
         return payload;
     };
+
+    // -----------------------------------------------------------------------
+    //                               Formatação
+    //   escapeHtml impede que texto digitado vire HTML. As outras formatam datas.
+    // -----------------------------------------------------------------------
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[character]);
@@ -36,6 +54,10 @@
         const date = new Date(`${String(value).slice(0, 10)}T12:00:00`);
         return new Intl.DateTimeFormat('pt-BR', options).format(date);
     };
+
+    // -----------------------------------------------------------------------
+    //                             Usuário logado
+    // -----------------------------------------------------------------------
     const usuario = (() => {
         try {
             return JSON.parse(sessionStorage.getItem('sgt-usuario') || 'null');
@@ -45,6 +67,10 @@
     })();
     window.SGT = { api, escapeHtml, localDate, dateLabel, sair, usuario };
 
+    // -----------------------------------------------------------------------
+    //                           Proteção das telas
+    //   Sem login volta para a entrada. Cada perfil só abre as próprias telas.
+    // -----------------------------------------------------------------------
     const outlet = document.querySelector('[data-site-nav]');
     if (!outlet) return;
     const current = location.pathname.toLowerCase();
@@ -68,6 +94,10 @@
         window.location.replace(inicio);
         return;
     }
+
+    // -----------------------------------------------------------------------
+    //                            Montagem do menu
+    // -----------------------------------------------------------------------
     const profileHtml = `
         <div class="topbar-user">
         <div class="profile-pill" aria-label="Perfil do usuário atual">

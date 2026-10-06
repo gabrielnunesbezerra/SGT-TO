@@ -1,4 +1,12 @@
+// ===========================================================================
+//                      Tela de consultas (consultas.js)
+//   O responsável confirma ou cancela. O terapeuta marca como realizada.
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // -----------------------------------------------------------------------
+    //                           Elementos da tela
+    // -----------------------------------------------------------------------
     const body = document.getElementById('consultas-body');
     const message = document.getElementById('consultas-message');
     const search = document.getElementById('consulta-search');
@@ -6,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let appointments = [];
     const currentUser = SGT.usuario;
     const ehPaciente = currentUser?.tipo === 'paciente';
+
+    // -----------------------------------------------------------------------
+    //                       Ajustes para o responsável
+    // -----------------------------------------------------------------------
     if (ehPaciente) {
         document.querySelector('.page-heading .button')?.remove();
         document.querySelector('.page-heading h1').textContent = 'Minhas consultas';
@@ -13,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.consultations-toolbar h2').textContent = 'Seus agendamentos';
     }
 
+    // -----------------------------------------------------------------------
+    //                           Regras dos botões
+    // -----------------------------------------------------------------------
     function agoraLocal() {
         return `${SGT.localDate(new Date())} ${new Date().toTimeString().slice(0, 5)}`;
     }
@@ -45,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return '';
     }
+
+    // -----------------------------------------------------------------------
+    //                          Aviso de pendências
+    // -----------------------------------------------------------------------
     function showPending() {
         if (!ehPaciente) return;
         const pendentes = appointments.filter((item) => item.status === 'Agendado' && !jaComecou(item)).length;
@@ -58,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // -----------------------------------------------------------------------
+    //                          Tabela de consultas
+    // -----------------------------------------------------------------------
     function render() {
         const query = search.value.trim().toLocaleLowerCase('pt-BR');
         const status = filter.value;
@@ -81,6 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>`).join('');
     }
 
+    // -----------------------------------------------------------------------
+    //                              Carregamento
+    // -----------------------------------------------------------------------
     async function load() {
         try {
             const query = currentUser && currentUser.tipo === 'terapeuta'
@@ -95,6 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
             body.innerHTML = '<tr><td colspan="6" class="empty-state">Não foi possível carregar as consultas.</td></tr>';
         }
     }
+
+    // -----------------------------------------------------------------------
+    //                                Eventos
+    // -----------------------------------------------------------------------
     search.addEventListener('input', render);
     filter.addEventListener('change', render);
     body.addEventListener('click', async (event) => {
@@ -124,5 +153,9 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = false;
         }
     });
+
+    // -----------------------------------------------------------------------
+    //                                 Início
+    // -----------------------------------------------------------------------
     load();
 });

@@ -1,11 +1,23 @@
+/* ===========================================================================
+                      Tela de consultas (consultas.css)
+   ======================================================================== */
+
 .consultations-panel { overflow: hidden; }
 .consultations-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; }
 .consultations-toolbar h2 { margin: 0; font-size: 15px; }
 .result-count { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
 .filters { display: flex; gap: 10px; }
 .filters .toolbar-control { width: auto; min-height: 40px; font-size: 11px; }
+
+/* ---------------------------------------------------------------------------
+                                Botões de ação
+   ------------------------------------------------------------------------ */
 .action-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
 .action-hint { color: var(--muted); font-size: 11px; }
 .button:disabled { opacity: .6; cursor: default; }
+
+/* ---------------------------------------------------------------------------
+                                Telas menores
+   ------------------------------------------------------------------------ */
 @media (max-width: 760px) { .consultations-toolbar { align-items: flex-start; flex-direction: column; } .filters { width: 100%; } .search-field { min-width: 0; flex: 1; } }
 @media (max-width: 520px) { .filters { flex-direction: column; } .filters .toolbar-control { width: 100%; } }

@@ -1,15 +1,31 @@
+/* ===========================================================================
+                      Tela de pacientes (pacientes.css)
+   ======================================================================== */
+
 .count-pill { padding: 9px 13px; border: 1px solid #e7d4ff; border-radius: 999px; background: #f3e8ff; color: var(--primary); font-size: 11px; font-weight: 700; }
+
+/* ---------------------------------------------------------------------------
+                             Layout e formulário
+   ------------------------------------------------------------------------ */
 .patient-layout { display: grid; grid-template-columns: minmax(270px, .75fr) minmax(0, 1.65fr); gap: 19px; align-items: start; }
 .patient-form-card { padding: 23px; }
 .form-title { display: flex; align-items: center; gap: 11px; margin-bottom: 22px; }
 .form-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: var(--primary-light); color: var(--primary); font-size: 21px; }
 .form-title h2, .patient-list-heading h2 { margin: 5px 0 0; font-size: 15px; }
 .submit-patient { width: 100%; margin-top: 22px; }
+
+/* ---------------------------------------------------------------------------
+                              Lista de pacientes
+   ------------------------------------------------------------------------ */
 .patient-list-card { min-width: 0; overflow: hidden; }
 .patient-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px; }
 .patient-list-heading .search-field { min-width: 210px; height: 38px; }
 .patient-list-card th, .patient-list-card td { padding-left: 13px; padding-right: 13px; }
 .patient-actions { display: flex; gap: 6px; }
 .patient-actions .icon-button { width: 31px; height: 31px; font-size: 13px; }
+
+/* ---------------------------------------------------------------------------
+                                Telas menores
+   ------------------------------------------------------------------------ */
 @media (max-width: 1050px) { .patient-layout { grid-template-columns: 1fr; } .patient-form-card { max-width: none; } }
 @media (max-width: 600px) { .patient-list-heading { align-items: flex-start; flex-direction: column; } .patient-list-heading .search-field { width: 100%; } }

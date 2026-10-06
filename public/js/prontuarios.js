@@ -1,4 +1,12 @@
+// ===========================================================================
+//                    Tela de prontuários (prontuarios.js)
+//   Registra evoluções e mostra o histórico do paciente escolhido.
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // -----------------------------------------------------------------------
+    //                           Elementos da tela
+    // -----------------------------------------------------------------------
     const form = document.getElementById('record-form');
     const select = document.getElementById('record-patient');
     const submit = form.querySelector('[type="submit"]');
@@ -11,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     form.elements.data_registro.value = hoje;
     form.elements.data_registro.max = hoje;
 
+    // -----------------------------------------------------------------------
+    //                           Funções auxiliares
+    // -----------------------------------------------------------------------
     function showMessage(text, type = 'error') {
         message.textContent = text;
         message.className = `notice ${type}`;
@@ -18,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectedPatient() {
         return patients.find((patient) => Number(patient.id_pessoa) === Number(select.value));
     }
+
+    // -----------------------------------------------------------------------
+    //                               Histórico
+    // -----------------------------------------------------------------------
     function render(records) {
         if (!records.length) {
             list.innerHTML = '<div class="empty-state">Nenhuma evolução registrada para este paciente.</div>';
@@ -50,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // -----------------------------------------------------------------------
+    //                                Eventos
+    // -----------------------------------------------------------------------
     select.addEventListener('change', () => {
         message.className = 'notice hidden';
         history.replaceState(null, '', select.value ? `?paciente=${select.value}` : location.pathname);
@@ -77,6 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // -----------------------------------------------------------------------
+    //                                 Início
+    //   Carrega os pacientes e já seleciona o que veio no link (?paciente=ID).
+    // -----------------------------------------------------------------------
     SGT.api('/api/pacientes')
         .then((result) => {
             patients = result;

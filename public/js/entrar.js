@@ -1,4 +1,12 @@
+// ===========================================================================
+//                        Tela de entrada (entrar.js)
+//   Login do terapeuta (usuário) e do responsável (CPF do paciente).
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // -----------------------------------------------------------------------
+    //                           Elementos da tela
+    // -----------------------------------------------------------------------
     const btnTrocar = document.getElementById('btn-trocar');
     const titulo = document.getElementById('titulo');
     const grupoProfissional = document.getElementById('grupo-profissional');
@@ -10,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = document.getElementById('login-message');
     let modo = 'profissional';
 
+    // -----------------------------------------------------------------------
+    //                        Aviso de sessão expirada
+    // -----------------------------------------------------------------------
     const aviso = sessionStorage.getItem('sgt-aviso');
     if (aviso) {
         sessionStorage.removeItem('sgt-aviso');
@@ -17,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
         message.classList.remove('oculto');
     }
 
+    // -----------------------------------------------------------------------
+    //                 Troca entre profissional e responsável
+    // -----------------------------------------------------------------------
     btnTrocar.addEventListener('click', (e) => {
         e.preventDefault();
         message.classList.add('oculto');
@@ -43,6 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // -----------------------------------------------------------------------
+    //                             Máscara do CPF
+    // -----------------------------------------------------------------------
     inputCpf.addEventListener('input', (event) => {
         let value = event.target.value.replace(/\D/g, '').slice(0, 11);
         if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2})$/, '$1.$2.$3-$4');
@@ -55,6 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.value = event.target.value.trimStart().replace(/\s{2,}/g, ' ');
     });
 
+    // -----------------------------------------------------------------------
+    //                             Envio do login
+    //   Guarda o token e o usuário e abre a tela inicial do perfil.
+    // -----------------------------------------------------------------------
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const button = form.querySelector('[type="submit"]');

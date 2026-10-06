@@ -1,4 +1,12 @@
+// ===========================================================================
+//                      Tela de pacientes (pacientes.js)
+//   Cadastro, busca, edição e exclusão de pacientes.
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // -----------------------------------------------------------------------
+    //                           Elementos da tela
+    // -----------------------------------------------------------------------
     const body = document.getElementById('patients-body');
     const message = document.getElementById('patients-message');
     const modal = document.getElementById('edit-modal');
@@ -7,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let patients = [];
     let editing = null;
 
+    // -----------------------------------------------------------------------
+    //                           Funções auxiliares
+    // -----------------------------------------------------------------------
     function showMessage(text, type = 'error') {
         message.textContent = text;
         message.className = `notice ${type}`;
@@ -15,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const digits = String(cpf || '').replace(/\D/g, '');
         return digits.length === 11 ? `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}` : digits;
     }
+
+    // -----------------------------------------------------------------------
+    //                          Tabela de pacientes
+    // -----------------------------------------------------------------------
     function render() {
         const query = search.value.trim().toLocaleLowerCase('pt-BR');
         const visible = patients.filter((patient) => `${patient.nome} ${patient.cpf} ${patient.telefone} ${patient.nome_responsavel}`.toLocaleLowerCase('pt-BR').includes(query));
@@ -36,6 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div></td>
             </tr>`).join('');
     }
+
+    // -----------------------------------------------------------------------
+    //                   Carregamento e dados do formulário
+    // -----------------------------------------------------------------------
     async function loadPatients() {
         patients = await SGT.api('/api/pacientes');
         render();
@@ -52,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (senha) payload.senha = senha;
         return payload;
     }
+
+    // -----------------------------------------------------------------------
+    //                            Janela de edição
+    // -----------------------------------------------------------------------
     function openEdit(patient) {
         editing = patient;
         const form = document.getElementById('edit-form');
@@ -68,6 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
         editing = null;
     }
 
+    // -----------------------------------------------------------------------
+    //                           Cadastrar paciente
+    // -----------------------------------------------------------------------
     document.getElementById('patient-form').addEventListener('submit', async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -84,6 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = false;
         }
     });
+
+    // -----------------------------------------------------------------------
+    //                             Salvar edição
+    // -----------------------------------------------------------------------
     document.getElementById('edit-form').addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!editing) return;
@@ -101,6 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = false;
         }
     });
+
+    // -----------------------------------------------------------------------
+    //                            Botões da tabela
+    //   Editar abre a janela. Excluir pede confirmação.
+    // -----------------------------------------------------------------------
     body.addEventListener('click', async (event) => {
         const editButton = event.target.closest('[data-edit-id]');
         if (editButton) {
@@ -122,6 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteButton.disabled = false;
         }
     });
+
+    // -----------------------------------------------------------------------
+    //                            Eventos e início
+    // -----------------------------------------------------------------------
     search.addEventListener('input', render);
     document.getElementById('close-edit').addEventListener('click', closeEdit);
     document.getElementById('cancel-edit').addEventListener('click', closeEdit);

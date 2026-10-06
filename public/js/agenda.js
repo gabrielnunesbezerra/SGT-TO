@@ -1,4 +1,12 @@
+// ===========================================================================
+//                         Tela de agenda (agenda.js)
+//   Mostra as consultas por dia, semana ou mês e cria novos agendamentos.
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // -----------------------------------------------------------------------
+    //                              Configuração
+    // -----------------------------------------------------------------------
     // Expediente do consultório (precisa bater com src/routes/agendamentos.js).
     const HORA_ABERTURA = 8;
     const HORA_FECHAMENTO = 18;
@@ -14,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalError = document.getElementById('modal-error');
     const dateInput = document.getElementById('appointment-date');
 
+    // -----------------------------------------------------------------------
+    //                            Funções de data
+    // -----------------------------------------------------------------------
     function minutesToTime(total) {
         return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
     }
@@ -49,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const last = new Date(focus.getFullYear(), focus.getMonth() + 1, 0);
         return [mondayOf(first), addDays(mondayOf(last), 4)];
     }
+
+    // -----------------------------------------------------------------------
+    //                         Mensagens e formulário
+    // -----------------------------------------------------------------------
     function updateDateLabel() {
         const texto = dateInput.value
             ? SGT.dateLabel(dateInput.value, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -68,6 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Number.isNaN(hours)) return;
         document.getElementById('appointment-end').textContent = minutesToTime((hours * 60 + minutes + DURACAO_MIN) % (24 * 60));
     }
+
+    // -----------------------------------------------------------------------
+    //                           Desenho da agenda
+    //   renderGrid desenha dia e semana. renderMonthBoard desenha o mês.
+    // -----------------------------------------------------------------------
     function renderTitle() {
         const [inicio, fim] = currentRange();
         let titulo;
@@ -147,6 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.month = new Date(state.focusDate.getFullYear(), state.focusDate.getMonth(), 1);
         renderMonth();
     }
+
+    // -----------------------------------------------------------------------
+    //                     Calendário pequeno da lateral
+    // -----------------------------------------------------------------------
     function renderMonth() {
         const month = state.month;
         document.getElementById('mini-month-label').textContent = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
@@ -162,6 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<button type="button" class="${date.getMonth() !== month.getMonth() ? 'outside' : ''} ${value === selectedDate ? 'selected' : ''}" data-calendar-date="${value}" aria-label="${date.toLocaleDateString('pt-BR')}">${date.getDate()}</button>`;
             }).join('');
     }
+
+    // -----------------------------------------------------------------------
+    //                            Lista de espera
+    // -----------------------------------------------------------------------
     function renderWaitingList() {
         const futurePatientIds = new Set(state.upcoming
             .filter((item) => item.status !== 'Cancelado')
@@ -172,6 +200,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ? waiting.slice(0, 5).map((patient) => `<div class="waiting-person">${SGT.escapeHtml(patient.nome)}<span>${SGT.escapeHtml(patient.telefone || 'Sem telefone cadastrado')}</span></div>`).join('')
             : '<div class="empty-state">Todos os pacientes têm horário futuro.</div>';
     }
+
+    // -----------------------------------------------------------------------
+    //                         Carregamento dos dados
+    // -----------------------------------------------------------------------
     const currentUser = SGT.usuario;
     async function loadAgenda() {
         if (state.view === 'dia') state.focusDate = proximoDiaUtil(state.focusDate);
@@ -193,6 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.upcoming = await SGT.api(`/api/agendamentos?inicio=${SGT.localDate(new Date())}`);
         renderWaitingList();
     }
+
+    // -----------------------------------------------------------------------
+    //                       Janela de novo agendamento
+    // -----------------------------------------------------------------------
     function openModal() {
         modal.classList.remove('hidden');
         modalError.classList.add('hidden');
@@ -212,6 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.add('hidden');
     }
 
+    // -----------------------------------------------------------------------
+    //                               Navegação
+    //   Setas, botão Hoje, troca de visão e cliques nos dias.
+    // -----------------------------------------------------------------------
     function move(direcao) {
         const focus = state.focusDate;
         if (state.view === 'dia') {
@@ -251,6 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.focusDate = new Date(`${button.dataset.calendarDate}T12:00:00`);
         loadAgenda();
     });
+
+    // -----------------------------------------------------------------------
+    //                         Eventos do formulário
+    // -----------------------------------------------------------------------
     document.getElementById('novo-agendamento').addEventListener('click', openModal);
     document.getElementById('fechar-modal').addEventListener('click', closeModal);
     document.getElementById('cancelar-modal').addEventListener('click', closeModal);
@@ -293,6 +337,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // -----------------------------------------------------------------------
+    //                                 Início
+    //   Carrega pacientes e terapeutas e depois a agenda.
+    // -----------------------------------------------------------------------
     Promise.all([SGT.api('/api/pacientes'), SGT.api('/api/agendamentos/terapeutas')])
         .then(([patients, therapists]) => {
             state.patients = patients;

@@ -1,4 +1,12 @@
+// ===========================================================================
+//                      Tela de mensagens (mensagens.js)
+//   Conversa entre terapeuta e responsável. Atualiza sozinha a cada 15 segundos.
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // -----------------------------------------------------------------------
+    //                           Elementos da tela
+    // -----------------------------------------------------------------------
     const contactsList = document.getElementById('contacts-list');
     const thread = document.getElementById('chat-thread');
     const chatTitle = document.getElementById('chat-title');
@@ -12,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedId = null;
     let lastSignature = '';
 
+    // -----------------------------------------------------------------------
+    //                           Textos por perfil
+    // -----------------------------------------------------------------------
     if (ehPaciente) {
         document.getElementById('contacts-title').textContent = 'Terapeutas';
         document.getElementById('messages-subtitle').textContent = 'Fale com a equipe do consultório sobre dúvidas e atendimentos.';
@@ -19,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('contacts-title').textContent = 'Pacientes';
     }
 
+    // -----------------------------------------------------------------------
+    //                           Funções auxiliares
+    // -----------------------------------------------------------------------
     function showError(error) {
         message.textContent = error.message;
         message.className = 'notice error';
@@ -28,6 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const [, month, day] = date.split('-');
         return `${day}/${month} ${time.slice(0, 5)}`;
     }
+
+    // -----------------------------------------------------------------------
+    //                           Lista de contatos
+    // -----------------------------------------------------------------------
     function renderContacts() {
         if (!contacts.length) {
             contactsList.innerHTML = '<div class="empty-state">Nenhum contato disponível.</div>';
@@ -41,6 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     : SGT.escapeHtml(contact.especialidade || 'Sem mensagens ainda')}</small>
             </button>`).join('');
     }
+
+    // -----------------------------------------------------------------------
+    //                                Conversa
+    // -----------------------------------------------------------------------
     function renderThread(messages) {
         const signature = messages.map((item) => item.id_mensagem).join(',');
         if (signature === lastSignature) return;
@@ -56,6 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`).join('');
         thread.scrollTop = thread.scrollHeight;
     }
+
+    // -----------------------------------------------------------------------
+    //                              Carregamento
+    // -----------------------------------------------------------------------
     async function loadThread() {
         if (!selectedId) return;
         try {
@@ -83,6 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
         input.focus();
     }
 
+    // -----------------------------------------------------------------------
+    //                                Eventos
+    // -----------------------------------------------------------------------
     contactsList.addEventListener('click', (event) => {
         const button = event.target.closest('[data-contact-id]');
         if (button) selectContact(button.dataset.contactId);
@@ -114,6 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // -----------------------------------------------------------------------
+    //                                 Início
+    // -----------------------------------------------------------------------
     loadContacts().catch((error) => {
         showError(error);
         contactsList.innerHTML = '<div class="empty-state">Não foi possível carregar os contatos.</div>';

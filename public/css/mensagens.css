@@ -1,13 +1,25 @@
+/* ===========================================================================
+                      Tela de mensagens (mensagens.css)
+   ======================================================================== */
+
 .chat-layout { display: grid; grid-template-columns: minmax(240px, .55fr) minmax(0, 1.6fr); gap: 19px; align-items: start; }
 .contacts-card, .chat-card { min-width: 0; overflow: hidden; }
 .contacts-heading, .chat-heading { padding: 20px 20px 14px; border-bottom: 1px solid var(--line); }
 .contacts-heading h2, .chat-heading h2 { margin: 5px 0 0; font-size: 15px; }
 .contacts-list { max-height: 520px; overflow-y: auto; }
+
+/* ---------------------------------------------------------------------------
+                              Lista de contatos
+   ------------------------------------------------------------------------ */
 .contact-item { width: 100%; display: block; padding: 14px 20px; border: 0; border-bottom: 1px solid #edf1ee; background: #fff; color: var(--ink); text-align: left; cursor: pointer; }
 .contact-item:hover { background: var(--canvas); }
 .contact-item.active { background: var(--primary-light); box-shadow: inset 3px 0 0 var(--primary); }
 .contact-item strong { display: block; font-size: 13px; }
 .contact-item small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+
+/* ---------------------------------------------------------------------------
+                              Conversa e balões
+   ------------------------------------------------------------------------ */
 .chat-thread { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 20px; background: var(--canvas); }
 .chat-thread .empty-state, .chat-thread .loading-state { margin: auto; }
 .bubble { max-width: min(75%, 520px); padding: 10px 13px; border-radius: 14px 14px 14px 4px; background: #fff; border: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
@@ -15,9 +27,17 @@
 .bubble time { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
 .bubble.mine { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: var(--primary); border-color: var(--primary); color: #fff; }
 .bubble.mine time { color: rgb(255 255 255 / 75%); }
+
+/* ---------------------------------------------------------------------------
+                                Campo de envio
+   ------------------------------------------------------------------------ */
 .chat-form { display: flex; gap: 10px; align-items: flex-end; padding: 14px 20px; border-top: 1px solid var(--line); }
 .chat-form textarea { flex: 1; min-height: 44px; max-height: 140px; padding: 10px 12px; border: 1px solid #dce5e0; border-radius: 8px; resize: vertical; color: var(--ink); font-size: 13px; outline: none; }
 .chat-form textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgb(91 33 182 / 11%); }
+
+/* ---------------------------------------------------------------------------
+                                Telas menores
+   ------------------------------------------------------------------------ */
 @media (max-width: 900px) {
     .chat-layout { grid-template-columns: 1fr; }
     .contacts-list { max-height: 220px; }
