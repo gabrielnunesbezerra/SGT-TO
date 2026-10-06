@@ -22,6 +22,16 @@ function inputValido(input) {
         && input.nomeResponsavel.length <= 160;
 }
 
+// A senha é opcional: vazia significa "não definir" (cadastro) ou "manter a atual" (edição).
+function senhaInformada(body) {
+    return typeof body.senha === 'string' && body.senha !== '' ? body.senha : null;
+}
+
+function senhaInvalida(body) {
+    return body.senha !== undefined && body.senha !== ''
+        && (typeof body.senha !== 'string' || body.senha.length < 6 || body.senha.length > 72);
+}
+
 router.get('/', async (req, res) => {
     const pacientes = await db.all(`${pacienteSelect} ORDER BY p.nome`);
     res.json(pacientes);
@@ -32,10 +42,10 @@ router.post('/', async (req, res) => {
     if (!inputValido(input)) {
         return res.status(400).json({ erro: 'Informe nome, CPF com 11 dígitos e telefone válidos.' });
     }
-    if (req.body.senha !== undefined && req.body.senha !== '' && (typeof req.body.senha !== 'string' || req.body.senha.length < 6)) {
-        return res.status(400).json({ erro: 'A senha de acesso deve ter pelo menos 6 caracteres.' });
+    if (senhaInvalida(req.body)) {
+        return res.status(400).json({ erro: 'A senha de acesso deve ter entre 6 e 72 caracteres.' });
     }
-    const senha = req.body.senha || crypto.randomBytes(32).toString('hex');
+    const senha = senhaInformada(req.body) || crypto.randomBytes(32).toString('hex');
     const hash = await bcrypt.hash(senha, 10);
 
     try {
@@ -66,6 +76,11 @@ router.put('/:id', async (req, res) => {
     if (!Number.isSafeInteger(id) || id < 1 || !inputValido(input)) {
         return res.status(400).json({ erro: 'Dados do paciente inválidos.' });
     }
+    if (senhaInvalida(req.body)) {
+        return res.status(400).json({ erro: 'A senha de acesso deve ter entre 6 e 72 caracteres.' });
+    }
+    const novaSenha = senhaInformada(req.body);
+    const hash = novaSenha ? await bcrypt.hash(novaSenha, 10) : null;
 
     try {
         const result = await db.transaction(async (tx) => {
@@ -79,6 +94,7 @@ router.put('/:id', async (req, res) => {
                 'UPDATE PACIENTE SET nome_responsavel = ? WHERE id_pessoa = ?',
                 [input.nomeResponsavel, id]
             );
+            if (hash) await tx.run('UPDATE PESSOA SET senha = ? WHERE id_pessoa = ?', [hash, id]);
             return true;
         });
         if (!result) return res.status(404).json({ erro: 'Paciente não encontrado.' });

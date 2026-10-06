@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.elements.cpf.value = formatCpf(patient.cpf);
         form.elements.telefone.value = patient.telefone;
         form.elements.nome_responsavel.value = patient.nome_responsavel || '';
+        form.elements.senha.value = '';
         editError.classList.add('hidden');
         modal.classList.remove('hidden');
     }

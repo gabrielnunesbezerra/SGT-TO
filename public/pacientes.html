@@ -26,7 +26,7 @@
                         <label class="field">CPF<input name="cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required></label>
                         <label class="field">Telefone<input name="telefone" type="tel" maxlength="30" placeholder="(11) 99999-9999" required></label>
                         <label class="field full">Nome do responsável<input name="nome_responsavel" type="text" maxlength="160" placeholder="Nome do responsável (se houver)"></label>
-                        <label class="field full">Senha de acesso do paciente (opcional)<input name="senha" type="password" minlength="6" autocomplete="new-password" placeholder="Necessária para o paciente acessar o sistema"></label>
+                        <label class="field full">Senha de acesso do responsável (opcional)<input name="senha" type="password" minlength="6" maxlength="72" autocomplete="new-password" placeholder="Mínimo de 6 caracteres"><small class="field-hint">O responsável entra com o CPF do paciente e esta senha.</small></label>
                     </div>
                     <button class="button submit-patient" type="submit">Cadastrar paciente</button>
                 </form>
@@ -52,6 +52,7 @@
                     <label class="field">CPF<input name="cpf" inputmode="numeric" maxlength="14" required></label>
                     <label class="field">Telefone<input name="telefone" maxlength="30" required></label>
                     <label class="field full">Nome do responsável<input name="nome_responsavel" maxlength="160"></label>
+                    <label class="field full">Nova senha de acesso<input name="senha" type="password" minlength="6" maxlength="72" autocomplete="new-password" placeholder="Deixe em branco para manter a atual"><small class="field-hint">Use para criar ou trocar a senha do responsável.</small></label>
                 </div>
                 <div class="modal-actions"><button class="button secondary" type="button" id="cancel-edit">Cancelar</button><button class="button" type="submit">Salvar alterações</button></div>
             </form>

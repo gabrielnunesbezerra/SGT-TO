@@ -80,4 +80,4 @@ Todas as rotas, menos o login, exigem o cabeçalho `Authorization: Bearer <token
 - Um terapeuta ou paciente não pode ter dois atendimentos que se sobreponham. Horários cancelados podem ser reaproveitados.
 - O responsável só vê as consultas e as mensagens do próprio paciente.
 - As evoluções do prontuário não podem ser editadas nem apagadas, e pacientes com histórico vinculado não podem ser excluídos.
-- O cadastro de paciente aceita uma senha opcional para o acesso do responsável. Sem senha, o cadastro existe, mas o responsável não consegue entrar.
+- O cadastro de paciente aceita uma senha opcional para o acesso do responsável. Sem senha, o responsável só consegue entrar depois que o terapeuta definir uma na edição do paciente.
