@@ -3,7 +3,7 @@
         sessionStorage.removeItem('sgt-token');
         sessionStorage.removeItem('sgt-usuario');
         if (aviso) sessionStorage.setItem('sgt-aviso', aviso);
-        window.location.replace('/Login.html');
+        window.location.replace('/entrar.html');
     };
     const api = async (url, options = {}) => {
         const token = sessionStorage.getItem('sgt-token');
