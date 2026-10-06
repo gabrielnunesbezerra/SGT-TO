@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const deHoje = agendamentos.filter((item) => String(item.data_agendamento).slice(0, 10) === hoje)
             .sort((a, b) => String(a.hora_agendamento).localeCompare(String(b.hora_agendamento)));
         document.getElementById('total-pacientes').textContent = pacientes.length;
-        document.getElementById('consultas-hoje').textContent = deHoje.length;
+        document.getElementById('consultas-hoje').textContent = deHoje.filter((item) => item.status !== 'Cancelado').length;
         const agora = new Date().toTimeString().slice(0, 5);
         const proximos = agendamentos.filter((item) => {
             const date = String(item.data_agendamento).slice(0, 10);

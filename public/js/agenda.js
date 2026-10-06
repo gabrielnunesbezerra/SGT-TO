@@ -59,7 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ${DAY_NAMES.map((name, index) => {
                 const date = weekDate(index);
                 const dateValue = SGT.localDate(date);
-                const dayItems = state.appointments.filter((item) => String(item.data_agendamento).slice(0, 10) === dateValue);
+                // Consultas canceladas liberam o horário, então não ocupam espaço na grade.
+                const dayItems = state.appointments.filter((item) => String(item.data_agendamento).slice(0, 10) === dateValue
+                    && item.status !== 'Cancelado');
                 return `<div class="day-column">
                     <div class="day-heading ${dateValue === today ? 'today' : ''}"><span>${name}</span><strong>${date.getDate()}</strong></div>
                     <div class="appointment-lane">
