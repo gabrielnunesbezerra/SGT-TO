@@ -4,7 +4,27 @@
 .week-actions { display: flex; align-items: center; gap: 8px; }
 .week-actions h2 { margin: 0 0 0 7px; font-size: 14px; }
 .week-hours { color: var(--muted); font-size: 11px; }
-.week-board { display: grid; grid-template-columns: 55px repeat(5, minmax(110px, 1fr)); overflow: auto; }
+.toolbar-right { display: flex; align-items: center; gap: 12px; }
+.view-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.view-switch button { height: 34px; padding: 0 13px; border: 0; border-left: 1px solid var(--line); background: #fff; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; }
+.view-switch button:first-child { border-left: 0; }
+.view-switch button:hover { background: var(--canvas); }
+.view-switch button.active { background: var(--primary-light); color: var(--primary); }
+.week-board { --dias: 5; display: grid; grid-template-columns: 55px repeat(var(--dias), minmax(110px, 1fr)); overflow: auto; }
+.day-heading.clickable { cursor: pointer; }
+.day-heading.clickable:hover { background: var(--canvas); }
+.month-board { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.month-weekday { padding: 10px 8px; border-bottom: 1px solid var(--line); border-left: 1px solid #edf1ee; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+.month-weekday:first-child, .month-cell:nth-child(5n + 1) { border-left: 0; }
+.month-cell { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; min-width: 0; min-height: 112px; padding: 8px; border: 0; border-top: 1px solid #edf1ee; border-left: 1px solid #edf1ee; background: #fff; color: var(--ink); text-align: left; cursor: pointer; }
+.month-cell:hover { background: #fbf9fe; }
+.month-cell.outside { background: var(--canvas); color: #b7c0bc; }
+.month-day { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-bottom: 4px; border-radius: 50%; font-size: 12px; font-weight: 700; }
+.month-cell.today .month-day { color: #fff; background: var(--primary); }
+.month-item { display: block; align-self: stretch; min-width: 0; margin-top: 3px; padding: 3px 6px; overflow: hidden; border-left: 3px solid #5b21b6; border-radius: 4px; background: #f3e8ff; color: #4c1d95; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.month-item.status-confirmado { border-color: #5686bd; background: #eaf2fa; color: #355c83; }
+.month-item.status-realizado { border-color: #7c3aed; background: #f1eafd; color: #5b21b6; }
+.month-more { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; font-weight: 700; }
 .time-column, .day-column { min-width: 0; }
 .day-heading { height: 58px; display: grid; align-content: center; justify-items: center; gap: 3px; border-bottom: 1px solid var(--line); border-left: 1px solid #edf1ee; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
 .day-heading strong { color: var(--ink); font: 700 15px Manrope, sans-serif; letter-spacing: 0; text-transform: none; }
@@ -51,4 +71,4 @@
 .end-time small { display: block; margin-top: 4px; color: #91a099; font-size: 10px; }
 .end-time .day-label { display: block; margin-bottom: 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
 @media (max-width: 1000px) { .agenda-layout { grid-template-columns: 1fr; } .agenda-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .waiting-card { grid-column: 1 / -1; } }
-@media (max-width: 650px) { .calendar-toolbar { align-items: flex-start; flex-direction: column; } .week-actions h2 { font-size: 12px; } .week-board { grid-template-columns: 42px repeat(5, 112px); } .agenda-sidebar { grid-template-columns: 1fr; } .waiting-card { grid-column: auto; } }
+@media (max-width: 650px) { .calendar-toolbar { align-items: flex-start; flex-direction: column; } .week-actions h2 { font-size: 12px; } .week-board { grid-template-columns: 42px repeat(var(--dias), minmax(112px, 1fr)); } .toolbar-right { width: 100%; justify-content: space-between; } .month-cell { min-height: 78px; padding: 5px; } .month-item { padding: 2px 4px; font-size: 9px; } .agenda-sidebar { grid-template-columns: 1fr; } .waiting-card { grid-column: auto; } }

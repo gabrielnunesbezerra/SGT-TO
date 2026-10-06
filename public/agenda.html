@@ -13,15 +13,22 @@
     <div data-site-nav></div>
     <main class="page">
         <section class="page-heading">
-            <div><span class="eyebrow">Planejamento semanal</span><h1>Agenda de atendimentos</h1><p>Uma semana organizada para um cuidado que faz a diferença.</p></div>
+            <div><span class="eyebrow">Planejamento</span><h1>Agenda de atendimentos</h1><p>Acompanhe os atendimentos por dia, por semana ou pelo mês inteiro.</p></div>
             <button class="button" id="novo-agendamento" type="button">＋ Novo agendamento</button>
         </section>
         <div id="agenda-message" class="notice hidden" role="status"></div>
         <div class="agenda-layout">
             <section class="calendar-panel surface">
                 <div class="calendar-toolbar">
-                    <div class="week-actions"><button class="icon-button" id="semana-anterior" aria-label="Semana anterior">‹</button><button class="icon-button" id="semana-proxima" aria-label="Próxima semana">›</button><button class="button secondary small" id="semana-atual">Hoje</button><h2 id="week-title"></h2></div>
-                    <span class="week-hours">Atendimentos · 08h–18h</span>
+                    <div class="week-actions"><button class="icon-button" id="periodo-anterior" aria-label="Semana anterior">‹</button><button class="icon-button" id="periodo-proximo" aria-label="Próxima semana">›</button><button class="button secondary small" id="periodo-hoje">Hoje</button><h2 id="week-title"></h2></div>
+                    <div class="toolbar-right">
+                        <div class="view-switch" role="group" aria-label="Modo de visualização">
+                            <button type="button" data-view="dia" aria-pressed="false">Dia</button>
+                            <button type="button" data-view="semana" aria-pressed="true" class="active">Semana</button>
+                            <button type="button" data-view="mes" aria-pressed="false">Mês</button>
+                        </div>
+                        <span class="week-hours">Seg a sex · 08h–18h</span>
+                    </div>
                 </div>
                 <div class="week-board" id="week-board"></div>
             </section>
