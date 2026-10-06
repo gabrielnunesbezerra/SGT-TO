@@ -1,8 +1,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const bcrypt = require('bcryptjs');
 
 const driver = (process.env.DB_DRIVER || 'sqlite').toLowerCase();
+const PASTA_SQL = path.join(__dirname, '..', '..', 'database');
 let sqlite;
 let pool;
 let sqliteQueue = Promise.resolve();
@@ -49,59 +49,6 @@ function mysqlAdapter(connection) {
     };
 }
 
-const mysqlSchema = [
-    `CREATE TABLE IF NOT EXISTS PESSOA (
-        id_pessoa INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(160) NOT NULL,
-        cpf VARCHAR(14) NOT NULL UNIQUE,
-        senha VARCHAR(100) NOT NULL,
-        telefone VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB`,
-    `CREATE TABLE IF NOT EXISTS TERAPEUTA (
-        id_pessoa INT PRIMARY KEY,
-        especialidade VARCHAR(120) NOT NULL,
-        FOREIGN KEY (id_pessoa) REFERENCES PESSOA(id_pessoa) ON DELETE CASCADE
-    ) ENGINE=InnoDB`,
-    `CREATE TABLE IF NOT EXISTS PACIENTE (
-        id_pessoa INT PRIMARY KEY,
-        nome_responsavel VARCHAR(160) NOT NULL DEFAULT '',
-        FOREIGN KEY (id_pessoa) REFERENCES PESSOA(id_pessoa) ON DELETE CASCADE
-    ) ENGINE=InnoDB`,
-    `CREATE TABLE IF NOT EXISTS AGENDAMENTO (
-        id_agendamento INT AUTO_INCREMENT PRIMARY KEY,
-        data_agendamento DATE NOT NULL,
-        hora_agendamento TIME NOT NULL,
-        status ENUM('Agendado', 'Confirmado', 'Realizado', 'Cancelado') NOT NULL DEFAULT 'Agendado',
-        id_terapeuta INT NOT NULL,
-        id_paciente INT NOT NULL,
-        FOREIGN KEY (id_terapeuta) REFERENCES TERAPEUTA(id_pessoa),
-        FOREIGN KEY (id_paciente) REFERENCES PACIENTE(id_pessoa),
-        INDEX idx_agendamento_data (data_agendamento),
-        INDEX idx_agendamento_terapeuta_data (id_terapeuta, data_agendamento)
-    ) ENGINE=InnoDB`,
-    `CREATE TABLE IF NOT EXISTS PRONTUARIO (
-        id_prontuario INT AUTO_INCREMENT PRIMARY KEY,
-        data_registro DATE NOT NULL,
-        descricao TEXT NOT NULL,
-        id_paciente INT NOT NULL,
-        id_terapeuta INT NOT NULL,
-        FOREIGN KEY (id_paciente) REFERENCES PACIENTE(id_pessoa),
-        FOREIGN KEY (id_terapeuta) REFERENCES TERAPEUTA(id_pessoa),
-        INDEX idx_prontuario_paciente_data (id_paciente, data_registro)
-    ) ENGINE=InnoDB`,
-    `CREATE TABLE IF NOT EXISTS MENSAGEM (
-        id_mensagem INT AUTO_INCREMENT PRIMARY KEY,
-        conteudo TEXT NOT NULL,
-        data_envio DATETIME NOT NULL,
-        id_terapeuta INT NOT NULL,
-        id_paciente INT NOT NULL,
-        remetente ENUM('terapeuta', 'paciente') NOT NULL DEFAULT 'paciente',
-        FOREIGN KEY (id_terapeuta) REFERENCES TERAPEUTA(id_pessoa),
-        FOREIGN KEY (id_paciente) REFERENCES PACIENTE(id_pessoa),
-        INDEX idx_mensagem_conversa (id_terapeuta, id_paciente, data_envio)
-    ) ENGINE=InnoDB`
-];
-
 // Bancos criados antes do módulo de mensagens não têm a coluna "remetente".
 async function migrate() {
     if (driver === 'sqlite') {
@@ -121,6 +68,17 @@ async function migrate() {
             "ALTER TABLE MENSAGEM ADD COLUMN remetente ENUM('terapeuta', 'paciente') NOT NULL DEFAULT 'paciente'"
         );
     }
+}
+
+// Lê um arquivo da pasta database/ e separa os comandos pelo ";" do fim da linha.
+function lerScript(nome) {
+    return fs.readFileSync(path.join(PASTA_SQL, nome), 'utf8')
+        .split(/\r?\n/)
+        .filter((linha) => !linha.trim().startsWith('--'))
+        .join('\n')
+        .split(/;\s*(?:\n|$)/)
+        .map((comando) => comando.trim())
+        .filter(Boolean);
 }
 
 async function withTransaction(callback) {
@@ -157,7 +115,6 @@ async function seed() {
     const count = await database.get('SELECT COUNT(*) AS total FROM PESSOA');
     if (Number(count.total) > 0) return;
 
-    const senha = await bcrypt.hash('123456', 10);
     const today = new Date();
     const dateOffset = (offset) => {
         const date = new Date(today);
@@ -172,31 +129,10 @@ async function seed() {
         [dateOffset(2), '15:30:00', 2, 7]
     ];
 
+    // Pessoas, terapeutas e pacientes vêm do script SQL. Os agendamentos são criados aqui
+    // com datas relativas ao dia de hoje, para a agenda sempre ter consultas na semana atual.
     await withTransaction(async (tx) => {
-        const people = [
-            ['Gabriel Tavares', '11111111111', '11999990001'],
-            ['Lucas Daniel', '22222222222', '11999990002'],
-            ['Mariana Costa', '00000000001', '11999990101'],
-            ['Pedro Henrique', '00000000002', '11999990102'],
-            ['Julia Santos', '00000000003', '11999990103'],
-            ['Lucas Almeida', '00000000004', '11999990104'],
-            ['Beatriz Oliveira', '00000000005', '11999990105']
-        ];
-        for (const [nome, cpf, telefone] of people) {
-            await tx.run(
-                'INSERT INTO PESSOA (nome, cpf, senha, telefone) VALUES (?, ?, ?, ?)',
-                [nome, cpf, senha, telefone]
-            );
-        }
-        await tx.run('INSERT INTO TERAPEUTA (id_pessoa, especialidade) VALUES (?, ?)', [1, 'Terapia ocupacional']);
-        await tx.run('INSERT INTO TERAPEUTA (id_pessoa, especialidade) VALUES (?, ?)', [2, 'Psicoterapia infantil']);
-        const responsaveis = ['Carla Costa', 'Roberto Henrique', 'Fernanda Santos', 'Paula Almeida', 'Renato Oliveira'];
-        for (let index = 0; index < responsaveis.length; index += 1) {
-            await tx.run(
-                'INSERT INTO PACIENTE (id_pessoa, nome_responsavel) VALUES (?, ?)',
-                [index + 3, responsaveis[index]]
-            );
-        }
+        for (const comando of lerScript('dados-exemplo.sql')) await tx.run(comando);
         for (const appointment of appointments) {
             await tx.run(
                 'INSERT INTO AGENDAMENTO (data_agendamento, hora_agendamento, id_terapeuta, id_paciente) VALUES (?, ?, ?, ?)',
@@ -213,8 +149,7 @@ async function initialize() {
         fs.mkdirSync(path.dirname(filename), { recursive: true });
         sqlite = new Database(filename);
         sqlite.pragma('foreign_keys = ON');
-        const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-        sqlite.exec(schema);
+        sqlite.exec(lerScript('schema.sql').join(';\n'));
     } else if (driver === 'mysql') {
         const mysql = require('mysql2/promise');
         pool = mysql.createPool({
@@ -227,7 +162,7 @@ async function initialize() {
             connectionLimit: 10,
             dateStrings: true
         });
-        for (const statement of mysqlSchema) await pool.execute(statement);
+        for (const comando of lerScript('schema-mysql.sql')) await pool.execute(comando);
     } else {
         throw new Error(`DB_DRIVER inválido: ${driver}. Use sqlite ou mysql.`);
     }
