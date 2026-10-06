@@ -49,7 +49,7 @@ button { cursor: pointer; }
     border-bottom: 1px solid var(--line);
 }
 .brand { display: flex; align-items: center; gap: 11px; min-width: 225px; }
-.brand-mark { width: 40px; height: 40px; display: grid; place-items: center; background: var(--primary); color: #fff; border-radius: 14px 14px 14px 5px; font: 800 17px Manrope, sans-serif; }
+.brand-mark { width: 58px; height: auto; display: block; }
 .brand-name { font: 800 16px Manrope, sans-serif; letter-spacing: -.5px; }
 .brand-caption { display: block; color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; margin-top: 1px; }
 .main-nav { display: flex; align-self: stretch; align-items: stretch; gap: 9px; }

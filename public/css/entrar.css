@@ -18,7 +18,7 @@
 /* ---------------------------------------------------------------------------
                                   Formulário
    ------------------------------------------------------------------------ */
-.logo { width: 64px; height: 64px; margin-bottom: 1rem; display: grid; place-items: center; border-radius: 22px 22px 22px 7px; color: #fff; background: var(--cor-principal); font-size: 23px; font-weight: 800; }
+.logo { width: 150px; height: auto; display: block; margin-bottom: 1rem; }
 #titulo { margin-bottom: 2rem; color: #333; font-size: 1.5rem; }
 #form-login { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 1rem; }
 label { font-size: 0.85rem; font-weight: bold; color: #555; }

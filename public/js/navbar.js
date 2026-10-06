@@ -112,7 +112,7 @@
     outlet.innerHTML = `
         <header class="topbar">
             <a class="brand" href="${inicio}" aria-label="SGT-O, ir para o início">
-                <span class="brand-mark">SG</span>
+                <img class="brand-mark" src="/img/logo-sgto.png" alt="">
                 <span><span class="brand-name">SGT-O</span><span class="brand-caption">Terapia ocupacional</span></span>
             </a>
             <nav class="main-nav" aria-label="Navegação principal">
