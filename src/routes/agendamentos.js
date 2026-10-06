@@ -23,14 +23,14 @@ const ULTIMO_INICIO = emHora(emMinutos(FECHAMENTO) - DURACAO_MIN);
 
 // Procura outro atendimento ativo que se sobreponha aos 50 minutos da sessão,
 // seja do mesmo terapeuta ou do mesmo paciente.
-async function buscarConflito(conexao, { data, hora, idTerapeuta, idPaciente, ignorarId = 0 }) {
+async function buscarConflito(conexao, { data, hora, idTerapeuta, idPaciente }) {
     const inicio = emMinutos(hora);
     const choque = await conexao.get(
         `SELECT id_terapeuta FROM AGENDAMENTO
-         WHERE data_agendamento = ? AND status <> 'Cancelado' AND id_agendamento <> ?
+         WHERE data_agendamento = ? AND status <> 'Cancelado'
            AND hora_agendamento > ? AND hora_agendamento < ?
            AND (id_terapeuta = ? OR id_paciente = ?)`,
-        [data, ignorarId, `${emHora(inicio - DURACAO_MIN)}:00`, `${emHora(inicio + DURACAO_MIN)}:00`, idTerapeuta, idPaciente]
+        [data, `${emHora(inicio - DURACAO_MIN)}:00`, `${emHora(inicio + DURACAO_MIN)}:00`, idTerapeuta, idPaciente]
     );
     if (!choque) return null;
     return Number(choque.id_terapeuta) === Number(idTerapeuta)
@@ -160,7 +160,15 @@ router.post('/', exigirTerapeuta, async (req, res) => {
     }
 });
 
-router.patch('/:id/status', exigirTerapeuta, async (req, res) => {
+// Quem pode mudar o status, e para quê:
+// - o responsável confirma ou cancela uma consulta que ainda não aconteceu;
+// - o terapeuta marca como realizada uma consulta confirmada, depois do horário.
+const transicoes = {
+    paciente: { Agendado: ['Confirmado', 'Cancelado'], Confirmado: ['Cancelado'] },
+    terapeuta: { Confirmado: ['Realizado'] }
+};
+
+router.patch('/:id/status', async (req, res) => {
     const id = Number(req.params.id);
     const { status } = req.body;
     if (!Number.isSafeInteger(id) || id < 1 || !statusValidos.includes(status)) {
@@ -171,18 +179,27 @@ router.patch('/:id/status', exigirTerapeuta, async (req, res) => {
          FROM AGENDAMENTO WHERE id_agendamento = ?`,
         [id]
     );
-    if (!appointment) return res.status(404).json({ erro: 'Agendamento não encontrado.' });
-    // Reativar uma consulta cancelada não pode ocupar um horário que já foi reaproveitado.
-    if (appointment.status === 'Cancelado' && status !== 'Cancelado') {
-        const conflito = await buscarConflito(db, {
-            data: String(appointment.data_agendamento).slice(0, 10),
-            hora: String(appointment.hora_agendamento).slice(0, 5),
-            idTerapeuta: appointment.id_terapeuta,
-            idPaciente: appointment.id_paciente,
-            ignorarId: id
+    const { tipo, id: idUsuario } = req.usuario;
+    const dono = appointment && Number(tipo === 'paciente' ? appointment.id_paciente : appointment.id_terapeuta) === Number(idUsuario);
+    if (!dono) return res.status(404).json({ erro: 'Agendamento não encontrado.' });
+
+    if (!(transicoes[tipo][appointment.status] || []).includes(status)) {
+        return res.status(409).json({
+            erro: tipo === 'paciente'
+                ? 'Esta consulta não pode mais ser confirmada ou cancelada.'
+                : 'Só é possível marcar como realizada uma consulta confirmada pelo responsável.'
         });
-        if (conflito) return res.status(409).json({ erro: conflito });
     }
+    const agora = new Date();
+    const inicio = `${String(appointment.data_agendamento).slice(0, 10)} ${String(appointment.hora_agendamento).slice(0, 5)}`;
+    const jaComecou = inicio <= `${dataLocal(agora)} ${agora.toTimeString().slice(0, 5)}`;
+    if (tipo === 'paciente' && jaComecou) {
+        return res.status(409).json({ erro: 'O horário desta consulta já passou.' });
+    }
+    if (tipo === 'terapeuta' && !jaComecou) {
+        return res.status(409).json({ erro: 'A consulta só pode ser marcada como realizada depois do horário marcado.' });
+    }
+
     await db.run('UPDATE AGENDAMENTO SET status = ? WHERE id_agendamento = ?', [status, id]);
     res.json({ id_agendamento: id, status });
 });

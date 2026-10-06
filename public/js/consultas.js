@@ -13,6 +13,51 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.consultations-toolbar h2').textContent = 'Seus agendamentos';
     }
 
+    function agoraLocal() {
+        return `${SGT.localDate(new Date())} ${new Date().toTimeString().slice(0, 5)}`;
+    }
+    function jaComecou(item) {
+        return `${String(item.data_agendamento).slice(0, 10)} ${String(item.hora_agendamento).slice(0, 5)}` <= agoraLocal();
+    }
+    // O responsável confirma ou cancela; o terapeuta só marca como realizada depois do horário.
+    function acoes(item) {
+        const id = item.id_agendamento;
+        if (ehPaciente) {
+            if (jaComecou(item)) return '';
+            if (item.status === 'Agendado') {
+                return `<div class="action-buttons">
+                    <button class="button small" type="button" data-id="${id}" data-status="Confirmado">Confirmar</button>
+                    <button class="button small secondary" type="button" data-id="${id}" data-status="Cancelado">Cancelar</button>
+                </div>`;
+            }
+            if (item.status === 'Confirmado') {
+                return `<button class="button small secondary" type="button" data-id="${id}" data-status="Cancelado">Cancelar</button>`;
+            }
+            return '';
+        }
+        if (item.status === 'Agendado') {
+            return `<span class="action-hint">${jaComecou(item) ? 'Não foi confirmada pelo responsável' : 'Aguardando o responsável'}</span>`;
+        }
+        if (item.status === 'Confirmado') {
+            return jaComecou(item)
+                ? `<button class="button small" type="button" data-id="${id}" data-status="Realizado">Marcar como realizada</button>`
+                : '<span class="action-hint">Confirmada pelo responsável</span>';
+        }
+        return '';
+    }
+    function showPending() {
+        if (!ehPaciente) return;
+        const pendentes = appointments.filter((item) => item.status === 'Agendado' && !jaComecou(item)).length;
+        if (pendentes) {
+            message.textContent = pendentes === 1
+                ? 'Você tem 1 consulta aguardando sua confirmação.'
+                : `Você tem ${pendentes} consultas aguardando sua confirmação.`;
+            message.className = 'notice success';
+        } else {
+            message.className = 'notice hidden';
+        }
+    }
+
     function render() {
         const query = search.value.trim().toLocaleLowerCase('pt-BR');
         const status = filter.value;
@@ -32,11 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${SGT.escapeHtml(SGT.dateLabel(item.data_agendamento, { day: '2-digit', month: 'long', year: 'numeric' }))}</td>
                 <td>${SGT.escapeHtml(String(item.hora_agendamento).slice(0, 5))}</td>
                 <td><span class="badge ${SGT.escapeHtml(item.status.toLowerCase())}">${SGT.escapeHtml(item.status)}</span></td>
-                <td>${ehPaciente ? '' : `<label class="sr-only" for="status-${item.id_agendamento}">Alterar status da consulta de ${SGT.escapeHtml(item.nome_paciente)}</label>
-                    <select class="status-select" id="status-${item.id_agendamento}" data-status-id="${item.id_agendamento}" aria-label="Alterar status">
-                        ${['Agendado', 'Confirmado', 'Realizado', 'Cancelado'].map((value) => `<option ${value === item.status ? 'selected' : ''}>${value}</option>`).join('')}
-                    </select>`}
-                </td>
+                <td>${acoes(item)}</td>
             </tr>`).join('');
     }
 
@@ -47,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '/api/agendamentos';
             appointments = await SGT.api(query);
             render();
+            showPending();
         } catch (error) {
             message.textContent = error.message;
             message.className = 'notice error';
@@ -55,27 +97,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     search.addEventListener('input', render);
     filter.addEventListener('change', render);
-    body.addEventListener('change', async (event) => {
-        const select = event.target.closest('[data-status-id]');
-        if (!select) return;
-        const appointment = appointments.find((item) => Number(item.id_agendamento) === Number(select.dataset.statusId));
-        if (!appointment || appointment.status === select.value) return;
-        select.disabled = true;
+    body.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-status]');
+        if (!button) return;
+        const appointment = appointments.find((item) => Number(item.id_agendamento) === Number(button.dataset.id));
+        if (!appointment) return;
+        const novoStatus = button.dataset.status;
+        if (novoStatus === 'Cancelado') {
+            const quando = `${SGT.dateLabel(appointment.data_agendamento)} às ${String(appointment.hora_agendamento).slice(0, 5)}`;
+            if (!confirm(`Cancelar a consulta de ${quando}? Depois de cancelada ela não pode ser reativada.`)) return;
+        }
+        button.disabled = true;
         try {
-            await SGT.api(`/api/agendamentos/${select.dataset.statusId}/status`, {
+            await SGT.api(`/api/agendamentos/${appointment.id_agendamento}/status`, {
                 method: 'PATCH',
-                body: JSON.stringify({ status: select.value })
+                body: JSON.stringify({ status: novoStatus })
             });
-            appointment.status = select.value;
-            message.textContent = 'Status da consulta atualizado.';
-            message.className = 'notice success';
+            appointment.status = novoStatus;
             render();
+            const textos = { Confirmado: 'Consulta confirmada.', Cancelado: 'Consulta cancelada.', Realizado: 'Consulta marcada como realizada.' };
+            message.textContent = textos[novoStatus];
+            message.className = 'notice success';
         } catch (error) {
             message.textContent = error.message;
             message.className = 'notice error';
-            select.value = appointment.status;
-        } finally {
-            select.disabled = false;
+            button.disabled = false;
         }
     });
     load();

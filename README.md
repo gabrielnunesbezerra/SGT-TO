@@ -78,6 +78,7 @@ Todas as rotas, menos o login, exigem o cabeçalho `Authorization: Bearer <token
 
 - O consultório atende de segunda a sexta, das 08:00 às 18:00, com sessões de 50 minutos. O último início possível é 17:10.
 - Um terapeuta ou paciente não pode ter dois atendimentos que se sobreponham. Horários cancelados podem ser reaproveitados.
+- Toda consulta nasce como "Agendado". O responsável confirma ou cancela pela tela "Minhas consultas" enquanto o horário não chegou, e o terapeuta marca como "Realizado" uma consulta confirmada depois do horário. Uma consulta cancelada não volta a ficar ativa.
 - O responsável só vê as consultas e as mensagens do próprio paciente.
 - As evoluções do prontuário não podem ser editadas nem apagadas, e pacientes com histórico vinculado não podem ser excluídos.
 - O cadastro de paciente aceita uma senha opcional para o acesso do responsável. Sem senha, o responsável só consegue entrar depois que o terapeuta definir uma na edição do paciente.

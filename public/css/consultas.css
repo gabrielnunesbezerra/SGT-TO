@@ -4,7 +4,8 @@
 .result-count { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
 .filters { display: flex; gap: 10px; }
 .filters .toolbar-control { width: auto; min-height: 40px; font-size: 11px; }
-.status-select { min-width: 124px; min-height: 33px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font-size: 11px; }
-.status-select:disabled { opacity: .6; }
+.action-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.action-hint { color: var(--muted); font-size: 11px; }
+.button:disabled { opacity: .6; cursor: default; }
 @media (max-width: 760px) { .consultations-toolbar { align-items: flex-start; flex-direction: column; } .filters { width: 100%; } .search-field { min-width: 0; flex: 1; } }
 @media (max-width: 520px) { .filters { flex-direction: column; } .filters .toolbar-control { width: 100%; } }
