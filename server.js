@@ -1,3 +1,7 @@
+// As regras de data e hora (agenda, mensagens) seguem o horário de Brasília,
+// mesmo se o servidor onde o sistema for publicado estiver em outro fuso.
+process.env.TZ = process.env.TZ || 'America/Sao_Paulo';
+
 const express = require('express');
 const path = require('node:path');
 const db = require('./src/database/db');
