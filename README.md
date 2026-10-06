@@ -1,8 +1,36 @@
-# SGT-O — Sistema de Gestão para Terapia Ocupacional
+# SGT-TO: Sistema de Gestão para Terapia Ocupacional
 
-Aplicação web com Express, telas modulares em HTML/CSS/JavaScript e persistência relacional em SQLite ou MySQL.
+Sistema web para um consultório de terapia ocupacional: cadastro de pacientes, agenda de atendimentos, controle de status das consultas, prontuário eletrônico e troca de mensagens entre terapeuta e responsável.
 
-## Executar localmente
+Projeto Integrador do curso Técnico em Desenvolvimento de Sistemas (CEEP Curitiba), feito por Gabriel Tavares Nunes Bezerra e Lucas Daniel de Morais Militão.
+
+## Tecnologias
+
+- **Back-end:** Node.js com Express, API em JSON
+- **Banco de dados:** SQLite (padrão) ou MySQL
+- **Front-end:** HTML, CSS e JavaScript, consumindo a API
+- **Segurança:** senhas com bcrypt e token assinado (HMAC) em todas as rotas da API
+
+## Estrutura das pastas
+
+```
+SGT-TO/
+├── database/              scripts SQL
+│   ├── schema.sql         criação das tabelas (SQLite)
+│   ├── schema-mysql.sql   criação das tabelas (MySQL)
+│   └── dados-exemplo.sql  pessoas, terapeutas e pacientes de exemplo
+├── public/                front-end
+│   ├── css/               um arquivo de estilo por tela + global.css
+│   ├── js/                um script por tela + navbar.js (menu e acesso à API)
+│   └── *.html             telas do sistema
+├── src/                   back-end (API)
+│   ├── database/db.js     conexão com o banco e criação inicial
+│   ├── middleware/auth.js geração e verificação do token
+│   └── routes/            endpoints da API
+└── server.js              inicia o servidor
+```
+
+## Como rodar
 
 Requer Node.js 20 ou superior.
 
@@ -11,13 +39,18 @@ npm install
 npm start
 ```
 
-Abra `http://localhost:3001`. Na primeira execução o banco SQLite é criado em `src/database/sgt-to.sqlite` e recebe dados demonstrativos. Os usuários demonstrativos usam a senha `123456`; terapeutas de exemplo: Gabriel Tavares (`gabriel` ou `gabrieltavares`) e Lucas Daniel (`lucas` ou `lucasdaniel`). Pacientes de exemplo: CPF de `00000000001` a `00000000005`.
+Abra `http://localhost:3001`. Na primeira execução o banco SQLite é criado em `src/database/sgt-to.sqlite` com os dados de exemplo. Os agendamentos de exemplo usam datas a partir do dia em que o banco foi criado.
 
-Para escolher outro local para o SQLite, defina `DB_PATH`. O banco padrão é local e não deve ser publicado.
+Usuários de exemplo (todos com a senha `123456`):
+
+- **Terapeutas:** `gabriel` e `lucas`
+- **Responsáveis:** CPF `000.000.000-01` até `000.000.000-05`
+
+Para usar outro arquivo SQLite, defina `DB_PATH`. Para fixar o segredo do token, defina `SESSION_SECRET`. Sem ele, o segredo é gerado na primeira execução e salvo em `.session-secret`, que não vai para o Git.
 
 ## MySQL
 
-Crie previamente o banco `sgt_to` (ou o definido por `DB_NAME`) e configure:
+Crie o banco `sgt_to` (ou o nome definido em `DB_NAME`) e configure:
 
 ```text
 DB_DRIVER=mysql
@@ -28,16 +61,23 @@ DB_PASSWORD=sua-senha
 DB_NAME=sgt_to
 ```
 
-O inicializador aplica o esquema compatível com MySQL e insere a mesma carga demonstrativa quando `PESSOA` ainda está vazia.
+Ao iniciar, o servidor aplica `database/schema-mysql.sql` e insere os dados de exemplo se a tabela `PESSOA` estiver vazia.
 
 ## API
 
-- `POST /api/auth/login`: autentica terapeuta ou paciente usando CPF e senha.
-- `GET /api/pacientes`, `POST /api/pacientes`, `PUT /api/pacientes/:id`, `DELETE /api/pacientes/:id`.
-- `GET /api/agendamentos?inicio=AAAA-MM-DD&fim=AAAA-MM-DD`, `POST /api/agendamentos`, `PATCH /api/agendamentos/:id/status`.
-- `GET /api/agendamentos/terapeutas`: lista terapeutas para o formulário de agenda.
-- `GET /api/prontuarios/paciente/:id`, `POST /api/prontuarios`.
+Todas as rotas, menos o login, exigem o cabeçalho `Authorization: Bearer <token>`.
 
-Agendamentos são serializados por terapeuta durante a criação para impedir reservas simultâneas do mesmo horário; horários cancelados podem ser reservados novamente. Evoluções de prontuário são somente de inclusão; pacientes com registros vinculados não podem ser excluídos para preservar o histórico clínico.
+- `POST /api/auth/login`: entra como terapeuta (usuário) ou responsável (CPF).
+- `GET /api/pacientes`, `POST /api/pacientes`, `PUT /api/pacientes/:id`, `DELETE /api/pacientes/:id`
+- `GET /api/agendamentos?inicio=AAAA-MM-DD&fim=AAAA-MM-DD`, `POST /api/agendamentos`, `PATCH /api/agendamentos/:id/status`
+- `GET /api/agendamentos/terapeutas`
+- `GET /api/prontuarios/paciente/:id`, `POST /api/prontuarios`
+- `GET /api/mensagens/contatos`, `GET /api/mensagens/:idContato`, `POST /api/mensagens`
 
-O formulário de cadastro de pacientes permite definir uma senha opcional para acesso do próprio paciente. Se não for informada, uma senha aleatória é armazenada em hash e o paciente não poderá entrar até que uma senha seja definida por um fluxo administrativo.
+## Regras do sistema
+
+- O consultório atende de segunda a sexta, das 08:00 às 18:00, com sessões de 50 minutos. O último início possível é 17:10.
+- Um terapeuta ou paciente não pode ter dois atendimentos que se sobreponham. Horários cancelados podem ser reaproveitados.
+- O responsável só vê as consultas e as mensagens do próprio paciente.
+- As evoluções do prontuário não podem ser editadas nem apagadas, e pacientes com histórico vinculado não podem ser excluídos.
+- O cadastro de paciente aceita uma senha opcional para o acesso do responsável. Sem senha, o cadastro existe, mas o responsável não consegue entrar.
