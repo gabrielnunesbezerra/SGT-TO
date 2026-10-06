@@ -1,7 +1,15 @@
+// ===========================================================================
+//                     Autenticação (middleware/auth.js)
+//   Cria e confere o token que prova quem está logado.
+// ===========================================================================
+
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
+// ---------------------------------------------------------------------------
+//                              Segredo do token
+// ---------------------------------------------------------------------------
 // Sem SESSION_SECRET, o segredo fica salvo em um arquivo local (fora do Git)
 // para que reiniciar o servidor não derrube quem já está logado.
 const ARQUIVO_SEGREDO = path.join(__dirname, '..', '..', '.session-secret');
@@ -26,6 +34,10 @@ function carregarSegredo() {
 const SEGREDO = carregarSegredo();
 const DURACAO_MS = 8 * 60 * 60 * 1000; // 8 horas
 
+// ---------------------------------------------------------------------------
+//                         Criação e leitura do token
+//   O token é o usuário em base64 mais uma assinatura. Se mexerem no conteúdo, a assinatura não bate.
+// ---------------------------------------------------------------------------
 function assinar(conteudo) {
     return crypto.createHmac('sha256', SEGREDO).update(conteudo).digest('base64url');
 }
@@ -55,6 +67,10 @@ function lerToken(token) {
     }
 }
 
+// ---------------------------------------------------------------------------
+//                             Controle de acesso
+//   exigirLogin barra quem não tem token válido. exigirTerapeuta barra o responsável.
+// ---------------------------------------------------------------------------
 function exigirLogin(req, res, next) {
     const cabecalho = req.get('Authorization') || '';
     const usuario = lerToken(cabecalho.startsWith('Bearer ') ? cabecalho.slice(7) : '');

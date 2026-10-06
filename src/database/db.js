@@ -1,18 +1,35 @@
+// ===========================================================================
+//                           Banco de dados (db.js)
+//   Conecta no SQLite ou no MySQL, cria as tabelas e insere os dados de exemplo.
+// ===========================================================================
+
 const fs = require('node:fs');
 const path = require('node:path');
 
+// ---------------------------------------------------------------------------
+//                                Configuração
+//   Qual banco usar (variável DB_DRIVER) e onde ficam os scripts SQL.
+// ---------------------------------------------------------------------------
 const driver = (process.env.DB_DRIVER || 'sqlite').toLowerCase();
 const PASTA_SQL = path.join(__dirname, '..', '..', 'database');
 let sqlite;
 let pool;
 let sqliteQueue = Promise.resolve();
 
+// ---------------------------------------------------------------------------
+//                               Fila do SQLite
+//   O SQLite faz uma operação por vez. A fila garante essa ordem.
+// ---------------------------------------------------------------------------
 function serializeSqlite(operation) {
     const task = sqliteQueue.then(operation);
     sqliteQueue = task.then(() => undefined, () => undefined);
     return task;
 }
 
+// ---------------------------------------------------------------------------
+//                                Adaptadores
+//   Deixam SQLite e MySQL com os mesmos métodos: all, get e run.
+// ---------------------------------------------------------------------------
 function sqliteAdapter(connection) {
     return {
         all(sql, params = []) {
@@ -49,6 +66,10 @@ function mysqlAdapter(connection) {
     };
 }
 
+// ---------------------------------------------------------------------------
+//                                  Migração
+//   Atualiza bancos criados antes de alguma coluna nova existir.
+// ---------------------------------------------------------------------------
 // Bancos criados antes do módulo de mensagens não têm a coluna "remetente".
 async function migrate() {
     if (driver === 'sqlite') {
@@ -70,6 +91,9 @@ async function migrate() {
     }
 }
 
+// ---------------------------------------------------------------------------
+//                          Leitura dos scripts SQL
+// ---------------------------------------------------------------------------
 // Lê um arquivo da pasta database/ e separa os comandos pelo ";" do fim da linha.
 function lerScript(nome) {
     return fs.readFileSync(path.join(PASTA_SQL, nome), 'utf8')
@@ -81,6 +105,10 @@ function lerScript(nome) {
         .filter(Boolean);
 }
 
+// ---------------------------------------------------------------------------
+//                                 Transações
+//   Executa vários comandos juntos: ou todos são salvos, ou nenhum é.
+// ---------------------------------------------------------------------------
 async function withTransaction(callback) {
     if (driver === 'sqlite') {
         return serializeSqlite(async () => {
@@ -110,6 +138,10 @@ async function withTransaction(callback) {
     }
 }
 
+// ---------------------------------------------------------------------------
+//                              Dados de exemplo
+//   Só roda quando a tabela PESSOA está vazia.
+// ---------------------------------------------------------------------------
 async function seed() {
     const database = driver === 'sqlite' ? sqliteAdapter(sqlite) : mysqlAdapter(pool);
     const count = await database.get('SELECT COUNT(*) AS total FROM PESSOA');
@@ -142,6 +174,9 @@ async function seed() {
     });
 }
 
+// ---------------------------------------------------------------------------
+//                           Inicialização do banco
+// ---------------------------------------------------------------------------
 async function initialize() {
     if (driver === 'sqlite') {
         const Database = require('better-sqlite3');
@@ -171,6 +206,10 @@ async function initialize() {
     await seed();
 }
 
+// ---------------------------------------------------------------------------
+//                             Funções exportadas
+//   É o que as rotas usam: db.all, db.get, db.run e db.transaction.
+// ---------------------------------------------------------------------------
 const database = {
     initialize,
     all(sql, params = []) {

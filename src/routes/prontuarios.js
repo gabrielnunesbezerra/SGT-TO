@@ -1,8 +1,16 @@
+// ===========================================================================
+//                   Rotas de prontuário (/api/prontuarios)
+//   Evoluções clínicas: só inclusão, nunca edição ou exclusão.
+// ===========================================================================
+
 const express = require('express');
 const db = require('../database/db');
 
 const router = express.Router();
 
+// ---------------------------------------------------------------------------
+//                       GET /paciente/:id (histórico)
+// ---------------------------------------------------------------------------
 router.get('/paciente/:id', async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ erro: 'ID do paciente inválido.' });
@@ -19,6 +27,10 @@ router.get('/paciente/:id', async (req, res) => {
     res.json(prontuarios);
 });
 
+// ---------------------------------------------------------------------------
+//                           POST / (nova evolução)
+//   O terapeuta vem do token, não do formulário.
+// ---------------------------------------------------------------------------
 router.post('/', async (req, res) => {
     const data = typeof req.body.data_registro === 'string' ? req.body.data_registro : '';
     const descricao = typeof req.body.descricao === 'string' ? req.body.descricao.trim() : '';

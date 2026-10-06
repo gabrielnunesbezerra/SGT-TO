@@ -1,8 +1,16 @@
+// ===========================================================================
+//                    Rotas de mensagens (/api/mensagens)
+//   Conversa entre terapeuta e responsável.
+// ===========================================================================
+
 const express = require('express');
 const db = require('../database/db');
 
 const router = express.Router();
 
+// ---------------------------------------------------------------------------
+//                             Funções auxiliares
+// ---------------------------------------------------------------------------
 function agora() {
     const data = new Date();
     const dois = (valor) => String(valor).padStart(2, '0');
@@ -22,6 +30,10 @@ function participantes(usuario, idContato) {
         : { idTerapeuta: idContato, idPaciente: usuario.id, tabelaContato: 'TERAPEUTA' };
 }
 
+// ---------------------------------------------------------------------------
+//                               GET /contatos
+//   O terapeuta vê os pacientes. O responsável vê os terapeutas.
+// ---------------------------------------------------------------------------
 router.get('/contatos', async (req, res) => {
     if (req.usuario.tipo === 'terapeuta') {
         const contatos = await db.all(
@@ -47,6 +59,10 @@ router.get('/contatos', async (req, res) => {
     res.json(contatos);
 });
 
+// ---------------------------------------------------------------------------
+//                              GET /:idContato
+//   Todas as mensagens da conversa com aquele contato.
+// ---------------------------------------------------------------------------
 router.get('/:idContato', async (req, res) => {
     const idContato = idValido(req.params.idContato);
     if (!idContato) return res.status(400).json({ erro: 'Contato inválido.' });
@@ -61,6 +77,9 @@ router.get('/:idContato', async (req, res) => {
     res.json(mensagens);
 });
 
+// ---------------------------------------------------------------------------
+//                          POST / (enviar mensagem)
+// ---------------------------------------------------------------------------
 router.post('/', async (req, res) => {
     const idContato = idValido(req.body.id_contato);
     const conteudo = typeof req.body.conteudo === 'string' ? req.body.conteudo.trim() : '';

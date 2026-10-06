@@ -1,3 +1,8 @@
+// ===========================================================================
+//                         Rota de login (/api/auth)
+//   Confere usuário ou CPF e senha e devolve o token.
+// ===========================================================================
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../database/db');
@@ -5,6 +10,10 @@ const { criarToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ---------------------------------------------------------------------------
+//                          Normalização do usuário
+//   Tira acentos, espaços e maiúsculas para comparar o login digitado.
+// ---------------------------------------------------------------------------
 function normalizeLogin(value) {
     return String(value || '')
         .normalize('NFD')
@@ -14,6 +23,10 @@ function normalizeLogin(value) {
         .trim();
 }
 
+// ---------------------------------------------------------------------------
+//                                POST /login
+//   Terapeuta entra com o usuário. Responsável entra com o CPF do paciente.
+// ---------------------------------------------------------------------------
 router.post('/login', async (req, res) => {
     const { tipo = 'terapeuta', login, cpf, senha } = req.body;
     const identificador = String(login || cpf || '').trim();

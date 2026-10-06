@@ -1,10 +1,22 @@
+// ===========================================================================
+//                 Rotas de agendamentos (/api/agendamentos)
+//   Lista, cria e muda o status das consultas.
+// ===========================================================================
+
 const express = require('express');
 const db = require('../database/db');
 const { exigirTerapeuta } = require('../middleware/auth');
 
+// ---------------------------------------------------------------------------
+//                            Configuração da rota
+// ---------------------------------------------------------------------------
 const router = express.Router();
 const statusValidos = ['Agendado', 'Confirmado', 'Realizado', 'Cancelado'];
 
+// ---------------------------------------------------------------------------
+//                          Horário de funcionamento
+//   Se o horário do consultório mudar, mude aqui e em public/js/agenda.js.
+// ---------------------------------------------------------------------------
 // Expediente do consultório: o último atendimento precisa terminar até o fechamento.
 const ABERTURA = '08:00';
 const FECHAMENTO = '18:00';
@@ -21,6 +33,9 @@ function emHora(minutos) {
 
 const ULTIMO_INICIO = emHora(emMinutos(FECHAMENTO) - DURACAO_MIN);
 
+// ---------------------------------------------------------------------------
+//                            Conflito de horários
+// ---------------------------------------------------------------------------
 // Procura outro atendimento ativo que se sobreponha aos 50 minutos da sessão,
 // seja do mesmo terapeuta ou do mesmo paciente.
 async function buscarConflito(conexao, { data, hora, idTerapeuta, idPaciente }) {
@@ -38,11 +53,18 @@ async function buscarConflito(conexao, { data, hora, idTerapeuta, idPaciente }) 
         : 'O paciente já tem um atendimento que ocupa esse horário.';
 }
 
+// ---------------------------------------------------------------------------
+//                              Funções de data
+// ---------------------------------------------------------------------------
 function dataLocal(date) {
     const dois = (valor) => String(valor).padStart(2, '0');
     return `${date.getFullYear()}-${dois(date.getMonth() + 1)}-${dois(date.getDate())}`;
 }
 
+// ---------------------------------------------------------------------------
+//                              GET /terapeutas
+//   Lista os terapeutas para o formulário da agenda.
+// ---------------------------------------------------------------------------
 router.get('/terapeutas', exigirTerapeuta, async (req, res) => {
     const terapeutas = await db.all(
         `SELECT p.id_pessoa, p.nome, t.especialidade
@@ -52,6 +74,10 @@ router.get('/terapeutas', exigirTerapeuta, async (req, res) => {
     res.json(terapeutas);
 });
 
+// ---------------------------------------------------------------------------
+//                          GET / (listar consultas)
+//   Filtra por período, terapeuta e paciente. O responsável só recebe as do próprio paciente.
+// ---------------------------------------------------------------------------
 router.get('/', async (req, res) => {
     const { inicio, fim, id_terapeuta, id_paciente } = req.query;
     const filtros = [];
@@ -90,6 +116,10 @@ router.get('/', async (req, res) => {
     res.json(agendamentos);
 });
 
+// ---------------------------------------------------------------------------
+//                         POST / (novo agendamento)
+//   Confere data, dia útil, expediente e conflito antes de salvar.
+// ---------------------------------------------------------------------------
 router.post('/', exigirTerapeuta, async (req, res) => {
     const data = typeof req.body.data_agendamento === 'string' ? req.body.data_agendamento : '';
     const hora = typeof req.body.hora_agendamento === 'string' ? req.body.hora_agendamento : '';
@@ -160,6 +190,10 @@ router.post('/', exigirTerapeuta, async (req, res) => {
     }
 });
 
+// ---------------------------------------------------------------------------
+//                      PATCH /:id/status (mudar status)
+//   Responsável confirma ou cancela. Terapeuta marca como realizada.
+// ---------------------------------------------------------------------------
 // Quem pode mudar o status, e para quê:
 // - o responsável confirma ou cancela uma consulta que ainda não aconteceu;
 // - o terapeuta marca como realizada uma consulta confirmada, depois do horário.

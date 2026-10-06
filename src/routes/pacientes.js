@@ -1,12 +1,25 @@
+// ===========================================================================
+//                    Rotas de pacientes (/api/pacientes)
+//   Cadastro, edição e exclusão de pacientes. Só o terapeuta acessa.
+// ===========================================================================
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('node:crypto');
 const db = require('../database/db');
 
 const router = express.Router();
+
+// ---------------------------------------------------------------------------
+//                               Consulta base
+//   SELECT reaproveitado em todas as rotas abaixo.
+// ---------------------------------------------------------------------------
 const pacienteSelect = `SELECT p.id_pessoa, p.nome, p.cpf, p.telefone, pa.nome_responsavel
     FROM PESSOA p JOIN PACIENTE pa ON pa.id_pessoa = p.id_pessoa`;
 
+// ---------------------------------------------------------------------------
+//                            Validação dos dados
+// ---------------------------------------------------------------------------
 function pessoaInput(body) {
     const nome = typeof body.nome === 'string' ? body.nome.trim() : '';
     const cpf = typeof body.cpf === 'string' ? body.cpf.replace(/\D/g, '') : '';
@@ -32,11 +45,18 @@ function senhaInvalida(body) {
         && (typeof body.senha !== 'string' || body.senha.length < 6 || body.senha.length > 72);
 }
 
+// ---------------------------------------------------------------------------
+//                          GET / (listar pacientes)
+// ---------------------------------------------------------------------------
 router.get('/', async (req, res) => {
     const pacientes = await db.all(`${pacienteSelect} ORDER BY p.nome`);
     res.json(pacientes);
 });
 
+// ---------------------------------------------------------------------------
+//                        POST / (cadastrar paciente)
+//   Cria a PESSOA e o PACIENTE na mesma transação.
+// ---------------------------------------------------------------------------
 router.post('/', async (req, res) => {
     const input = pessoaInput(req.body);
     if (!inputValido(input)) {
@@ -70,6 +90,10 @@ router.post('/', async (req, res) => {
     }
 });
 
+// ---------------------------------------------------------------------------
+//                         PUT /:id (editar paciente)
+//   Senha em branco mantém a atual.
+// ---------------------------------------------------------------------------
 router.put('/:id', async (req, res) => {
     const id = Number(req.params.id);
     const input = pessoaInput(req.body);
@@ -107,6 +131,10 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// ---------------------------------------------------------------------------
+//                       DELETE /:id (excluir paciente)
+//   Só exclui quem não tem consulta, prontuário nem mensagem.
+// ---------------------------------------------------------------------------
 router.delete('/:id', async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ erro: 'ID inválido.' });
