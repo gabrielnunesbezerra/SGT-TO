@@ -3,8 +3,6 @@
 .consultations-toolbar h2 { margin: 0; font-size: 15px; }
 .result-count { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
 .filters { display: flex; gap: 10px; }
-.search-field { display: flex; align-items: center; gap: 8px; min-width: min(280px, 30vw); height: 40px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; color: #87938e; }
-.search-field input { width: 100%; border: 0; outline: 0; color: var(--ink); font-size: 12px; background: transparent; }
 .filters .toolbar-control { width: auto; min-height: 40px; font-size: 11px; }
 .status-select { min-width: 124px; min-height: 33px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font-size: 11px; }
 .status-select:disabled { opacity: .6; }

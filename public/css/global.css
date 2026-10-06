@@ -104,6 +104,8 @@ h2 { font-size: 18px; letter-spacing: -.4px; }
 .field { display: grid; gap: 7px; color: #52635e; font-size: 12px; font-weight: 700; }
 .field input, .field select, .field textarea, .toolbar-control { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid #dce5e0; border-radius: 8px; background: #fff; color: var(--ink); outline: none; }
 .field textarea { min-height: 100px; resize: vertical; }
+.search-field { display: flex; align-items: center; gap: 8px; min-width: min(280px, 30vw); height: 40px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; color: #87938e; }
+.search-field input { width: 100%; border: 0; outline: 0; color: var(--ink); font-size: 12px; background: transparent; }
 .field-hint { color: var(--muted); font-size: 11px; font-weight: 400; }
 .field input:focus, .field select:focus, .field textarea:focus, .toolbar-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgb(91 33 182 / 11%); }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
